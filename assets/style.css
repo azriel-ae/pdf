@@ -1,0 +1,131 @@
+/* =====================================================================
+   RedPixel Studio & redPDF Tools - Stylesheet
+   Custom CSS on top of Tailwind CSS (loaded via CDN in index.html)
+   ===================================================================== */
+
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+}
+::-webkit-scrollbar-thumb {
+    background: #dc2626;
+    border-radius: 3px;
+}
+
+.dropdown-menu {
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+.dropdown-menu.hidden-dropdown {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+    pointer-events: none;
+    visibility: hidden;
+}
+.dropdown-menu.visible-dropdown {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+    visibility: visible;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* PRINT MEDIA STYLES - 1 Full Page A4 Print Layout Without Cropping */
+@page {
+    size: A4 portrait;
+    margin: 0;
+}
+@media print {
+    *, *:before, *:after {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    html, body {
+        width: 210mm !important;
+        height: 297mm !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+        color: black !important;
+        overflow: hidden !important;
+    }
+    .no-print, header, aside, nav, #toast-container, .tab-panel, button {
+        display: none !important;
+    }
+    main {
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 210mm !important;
+        height: 297mm !important;
+    }
+    #main-view-photo {
+        display: block !important;
+        width: 210mm !important;
+        height: 297mm !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    section {
+        width: 210mm !important;
+        height: 297mm !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    #editor-workspace {
+        display: none !important;
+    }
+    #print-workspace {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: white !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        width: 210mm !important;
+        height: 297mm !important;
+        box-sizing: border-box !important;
+    }
+    #print-area {
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 210mm !important;
+        height: 297mm !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        page-break-after: avoid !important;
+        page-break-inside: avoid !important;
+    }
+    #print-grid {
+        width: 210mm !important;
+        height: 297mm !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        page-break-inside: avoid !important;
+    }
+    .print-full-page-img {
+        max-width: 210mm !important;
+        max-height: 297mm !important;
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: contain !important; /* Preserves entire edited image without cropping */
+    }
+}
