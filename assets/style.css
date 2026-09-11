@@ -1,0 +1,135 @@
+/* =====================================================================
+   RedPixel Studio & redPDF Tools - Stylesheet
+   Custom CSS on top of Tailwind CSS (loaded via CDN in index.html)
+   ===================================================================== */
+
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+}
+::-webkit-scrollbar-thumb {
+    background: #dc2626;
+    border-radius: 3px;
+}
+
+.dropdown-menu {
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+.dropdown-menu.hidden-dropdown {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+    pointer-events: none;
+    visibility: hidden;
+}
+.dropdown-menu.visible-dropdown {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+    visibility: visible;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* PRINT MEDIA STYLES - Full Page A4 Print Layout (Portrait or Landscape,
+   Fit to Page or Fill Page). Default @page is portrait; handleDirectPrint()
+   injects a <style id="dynamic-print-orientation-style"> tag with the
+   correct `size: A4 landscape|portrait` right before window.print(), since
+   @page can't read JS state directly. #print-area's own inline width/height
+   (set in JS to 210mm x 297mm or 297mm x 210mm) drives the actual layout,
+   so the print CSS below intentionally does NOT hardcode a fixed A4 size. */
+@page {
+    size: A4 portrait;
+    margin: 0;
+}
+@media print {
+    *, *:before, *:after {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    html, body {
+        width: 100% !important;
+        height: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+        color: black !important;
+        overflow: hidden !important;
+    }
+    .no-print, header, aside, nav, #toast-container, .tab-panel, button {
+        display: none !important;
+    }
+    main {
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+    }
+    #main-view-photo {
+        display: block !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    section {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    #editor-workspace {
+        display: none !important;
+    }
+    #print-workspace {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: white !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+        box-sizing: border-box !important;
+    }
+    /* #print-area keeps the width/height set inline by JS (210mm x 297mm for
+       portrait, 297mm x 210mm for landscape) so it always matches @page. */
+    #print-area {
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        page-break-after: avoid !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+    #print-grid {
+        width: 100% !important;
+        height: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        page-break-inside: avoid !important;
+    }
+    .print-full-page-img {
+        width: 100% !important;
+        height: 100% !important;
+        /* object-fit is set by JS: 'object-contain' for Fit to Page (shows
+           the whole image, may leave a sliver of white on mismatched
+           aspect ratios) or 'object-cover' for Fill Page (covers the whole
+           sheet, cropping overflow, never stretches/distorts). */
+    }
+}

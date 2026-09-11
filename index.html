@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RedPixel Studio & redPDF Tools - Photo & PDF Suite</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Cropper.js CSS & JS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+    <!-- Fabric.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- PDF-Lib for Client-Side PDF Operations -->
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+
+    <!-- PDF.js for PDF Rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+    <!-- JSZip for Batch PDF to Image Zip Download -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <!-- SheetJS (xlsx) for real Excel workbook generation (File to Excel) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <!-- App config: Tailwind theme + PDF.js worker setup (needs pdf.js loaded above) -->
+    <script src="assets/config.js"></script>
+
+    <!-- App stylesheet (custom CSS on top of Tailwind) -->
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body class="bg-gray-100 dark:bg-zinc-900 text-gray-800 dark:text-zinc-100 font-sans min-h-screen flex flex-col transition-colors duration-200 pb-16 lg:pb-0">
+
+    <header class="no-print bg-white dark:bg-zinc-800 border-b border-gray-200 dark:border-zinc-700 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            
+            <!-- Brand Logo -->
+            <div class="flex items-center space-x-3 sm:space-x-6">
+                <a href="#" onclick="switchMainView('photo'); return false;" class="flex items-center space-x-2.5 sm:space-x-3 group">
+                    <div class="bg-red-600 text-white p-2 sm:p-2.5 rounded-xl shadow-md flex items-center justify-center group-hover:bg-red-700 transition">
+                        <i class="fa-solid fa-camera-retro text-lg sm:text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-base sm:text-lg font-bold leading-none tracking-tight flex items-center gap-1.5 sm:gap-2">
+                            RedPixel <span class="bg-red-600 text-white text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-md uppercase font-semibold">Studio</span>
+                        </h1>
+                        <p class="text-[10px] sm:text-xs text-gray-500 dark:text-zinc-400">Photo & PDF Toolkit</p>
+                    </div>
+                </a>
+
+                <!-- Desktop Navigation Menu -->
+                <nav class="hidden md:flex items-center space-x-1">
+                    <button id="nav-item-photo" onclick="switchMainView('photo')" class="px-3.5 py-2 rounded-xl text-sm font-semibold transition flex items-center space-x-2 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40">
+                        <i class="fa-solid fa-image"></i>
+                        <span>Photo Studio</span>
+                    </button>
+
+                    <!-- Image Tools Dropdown -->
+                    <div class="relative" id="image-tools-dropdown-container">
+                        <button id="image-tools-menu-button" onclick="toggleImageToolsDropdown()" aria-expanded="false" aria-haspopup="true" class="px-3.5 py-2 rounded-xl text-sm font-semibold text-gray-600 dark:text-zinc-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-zinc-700 transition flex items-center space-x-2">
+                            <i class="fa-solid fa-wand-magic-sparkles text-red-600 dark:text-red-400"></i>
+                            <span>Image Tools</span>
+                            <i class="fa-solid fa-chevron-down text-xs ml-1 transition-transform duration-200" id="image-tools-chevron"></i>
+                        </button>
+
+                        <div id="image-tools-dropdown-menu" class="dropdown-menu hidden-dropdown absolute left-0 mt-2 w-64 bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-zinc-700 p-2 z-50">
+                            <a href="#" onclick="switchMainView('converter'); toggleImageToolsDropdown(); return false;" class="p-2.5 rounded-xl hover:bg-red-50 dark:hover:bg-zinc-700/70 flex items-center space-x-3 transition group">
+                                <div class="p-2 rounded-lg bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400 group-hover:bg-red-600 group-hover:text-white transition">
+                                    <i class="fa-solid fa-file-arrow-down text-base"></i>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold text-gray-800 dark:text-zinc-100 group-hover:text-red-600">Image Converter</div>
+                                    <div class="text-[11px] text-gray-500 dark:text-zinc-400">Ubah format gambar & kompresi</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- File Tools Dropdown (File to Excel) -->
+                    <a href="#" onclick="switchMainView('excel')" class="px-3.5 py-2 rounded-xl text-sm font-semibold text-gray-600 dark:text-zinc-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-zinc-700 transition flex items-center space-x-2">
+                        <i class="fa-solid fa-file-excel text-red-600 dark:text-red-400"></i>
+                        <span>File ke Excel</span>
+                    </a>
+
+                    <div class="relative" id="pdf-dropdown-container">
+                        <button id="pdf-menu-button" onclick="togglePdfDropdown()" aria-expanded="false" aria-haspopup="true" class="px-3.5 py-2 rounded-xl text-sm font-semibold text-gray-600 dark:text-zinc-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-zinc-700 transition flex items-center space-x-2">
+                            <i class="fa-solid fa-file-pdf text-red-600 dark:text-red-400"></i>
+                            <span>PDF Tools</span>
+                            <span class="bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full uppercase">redPDF</span>
+                            <i class="fa-solid fa-chevron-down text-xs ml-1 transition-transform duration-200" id="pdf-chevron"></i>
+                        </button>
+
+                        <div id="pdf-dropdown-menu" class="dropdown-menu hidden-dropdown absolute left-0 mt-2 w-[520px] bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-zinc-700 p-4 z-50">
+                            <div class="flex items-center justify-between pb-3 mb-3 border-b border-gray-100 dark:border-zinc-700/80">
+                                <div class="flex items-center space-x-2">
+                                    <span class="bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded">redPDF</span>
+                                    <span class="text-xs text-gray-500 dark:text-zinc-400">PDF Tools by RedPixel Studio</span>
+                                </div>
+                                <span class="text-[11px] text-green-500 font-semibold flex items-center gap-1">
+                                    <i class="fa-solid fa-shield-halved"></i> 100% Aman & Lokal
+                                </span>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <a href="#" onclick="selectPdfTool('image-to-pdf'); togglePdfDropdown(); return false;" class="pdf-tool-link p-2.5 rounded-xl hover:bg-red-50 dark:hover:bg-zinc-700/70 flex items-start space-x-3 transition group">
+                                    <div class="p-2 rounded-lg bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400 group-hover:bg-red-600 group-hover:text-white transition">
+                                        <i class="fa-solid fa-images text-base"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs font-bold text-gray-800 dark:text-zinc-100 group-hover:text-red-600">Image to PDF</div>
+                                        <div class="text-[11px] text-gray-500 dark:text-zinc-400">Ubah JPG/PNG/WEBP ke PDF</div>
+                                    </div>
+                                </a>
+
+                                <a href="#" onclick="selectPdfTool('pdf-to-image'); togglePdfDropdown(); return false;" class="pdf-tool-link p-2.5 rounded-xl hover:bg-red-50 dark:hover:bg-zinc-700/70 flex items-start space-x-3 transition group">
+                                    <div class="p-2 rounded-lg bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400 group-hover:bg-red-600 group-hover:text-white transition">
+                                        <i class="fa-solid fa-file-image text-base"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs font-bold text-gray-800 dark:text-zinc-100 group-hover:text-red-600">PDF to Image</div>
+                                        <div class="text-[11px] text-gray-500 dark:text-zinc-400">Ekstrak halaman PDF ke Gambar</div>
+                                    </div>
+                                </a>
+
+                                <a href="#" onclick="selectPdfTool('merge-pdf'); togglePdfDropdown(); return false;" class="pdf-tool-link p-2.5 rounded-xl hover:bg-red-50 dark:hover:bg-zinc-700/70 flex items-start space-x-3 transition group">
+                                    <div class="p-2 rounded-lg bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400 group-hover:bg-red-600 group-hover:text-white transition">
+                                        <i class="fa-solid fa-object-group text-base"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs font-bold text-gray-800 dark:text-zinc-100 group-hover:text-red-600">Merge PDF</div>
+                                        <div class="text-[11px] text-gray-500 dark:text-zinc-400">Gabung beberapa file PDF</div>
+                                    </div>
+                                </a>
+
+                                <a href="#" onclick="selectPdfTool('split-pdf'); togglePdfDropdown(); return false;" class="pdf-tool-link p-2.5 rounded-xl hover:bg-red-50 dark:hover:bg-zinc-700/70 flex items-start space-x-3 transition group">
+                                    <div class="p-2 rounded-lg bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400 group-hover:bg-red-600 group-hover:text-white transition">
+                                        <i class="fa-solid fa-scissors text-base"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs font-bold text-gray-800 dark:text-zinc-100 group-hover:text-red-600">Split PDF</div>
+                                        <div class="text-[11px] text-gray-500 dark:text-zinc-400">Pisah halaman PDF tertentu</div>
+                                    </div>
+                                </a>
+
+                                <a href="#" onclick="selectPdfTool('compress-pdf'); togglePdfDropdown(); return false;" class="pdf-tool-link p-2.5 rounded-xl hover:bg-red-50 dark:hover:bg-zinc-700/70 flex items-start space-x-3 transition group">
+                                    <div class="p-2 rounded-lg bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400 group-hover:bg-red-600 group-hover:text-white transition">
+                                        <i class="fa-solid fa-file-compress text-base"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs font-bold text-gray-800 dark:text-zinc-100 group-hover:text-red-600">Compress PDF</div>
+                                        <div class="text-[11px] text-gray-500 dark:text-zinc-400">Kecilkan ukuran file PDF</div>
+                                    </div>
+                                </a>
+
+                                <a href="#" onclick="switchMainView('excel'); togglePdfDropdown(); return false;" class="pdf-tool-link p-2.5 rounded-xl hover:bg-red-50 dark:hover:bg-zinc-700/70 flex items-start space-x-3 transition group">
+                                    <div class="p-2 rounded-lg bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400 group-hover:bg-red-600 group-hover:text-white transition">
+                                        <i class="fa-solid fa-file-excel text-base"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs font-bold text-gray-800 dark:text-zinc-100 group-hover:text-red-600">PDF to Excel</div>
+                                        <div class="text-[11px] text-gray-500 dark:text-zinc-400">Ekstrak tabel PDF ke .xlsx</div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+
+            <div class="flex items-center space-x-1.5 sm:space-x-3">
+                <button id="theme-toggle-btn" onclick="toggleTheme()" class="p-2 sm:px-3 sm:py-2 text-gray-600 dark:text-zinc-300 hover:text-red-600 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-700 transition flex items-center space-x-2 text-xs font-semibold" title="Ganti Mode Tema">
+                    <i id="theme-icon" class="fa-solid fa-sun text-base"></i>
+                    <span id="theme-mode-text" class="hidden md:inline">Black Mode</span>
+                </button>
+
+                <div id="photo-header-actions" class="flex items-center space-x-1.5 sm:space-x-2">
+                    <button onclick="resetToHomeScreen()" class="inline-flex items-center space-x-1 sm:space-x-1.5 bg-gray-200 dark:bg-zinc-700 hover:bg-red-50 text-gray-800 dark:text-zinc-100 hover:text-red-600 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl text-xs font-semibold transition" title="Ganti Foto">
+                        <i class="fa-solid fa-arrow-rotate-left text-red-600 dark:text-red-400"></i>
+                        <span class="hidden sm:inline">Ganti Foto</span>
+                    </button>
+                    <button onclick="downloadEditedPhoto()" class="inline-flex items-center space-x-1 sm:space-x-1.5 bg-green-600 hover:bg-green-700 text-white px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-semibold shadow-md transition" title="Download Foto Saat Ini">
+                        <i class="fa-solid fa-download"></i>
+                        <span>Download</span>
+                    </button>
+                    <!-- Trigger direct print with full edited photo without auto-cropping -->
+                    <button id="nav-print-btn" onclick="handleDirectPrint()" class="inline-flex items-center space-x-1 sm:space-x-1.5 bg-red-600 hover:bg-red-700 text-white px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-medium shadow-md transition">
+                        <i class="fa-solid fa-print"></i>
+                        <span>Cetak Full A4</span>
+                    </button>
+                </div>
+
+                <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-gray-600 dark:text-zinc-300 hover:text-red-600 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-700 transition" title="Menu Navigation">
+                    <i class="fa-solid fa-bars text-lg" id="mobile-menu-icon"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="mobile-menu" class="hidden md:hidden border-t border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-4 pt-2 pb-4 space-y-3">
+            <button onclick="switchMainView('photo'); toggleMobileMenu();" class="w-full text-left py-2 px-3 rounded-xl text-sm font-semibold text-gray-800 dark:text-zinc-100 hover:bg-red-50 flex items-center justify-between">
+                <span class="flex items-center gap-2"><i class="fa-solid fa-image text-red-600"></i> Photo Studio</span>
+                <i class="fa-solid fa-chevron-right text-xs"></i>
+            </button>
+
+            <button onclick="switchMainView('converter'); toggleMobileMenu();" class="w-full text-left py-2 px-3 rounded-xl text-sm font-semibold text-gray-800 dark:text-zinc-100 hover:bg-red-50 flex items-center justify-between">
+                <span class="flex items-center gap-2"><i class="fa-solid fa-file-arrow-down text-red-600"></i> Image Converter</span>
+                <i class="fa-solid fa-chevron-right text-xs"></i>
+            </button>
+
+            <button onclick="switchMainView('excel'); toggleMobileMenu();" class="w-full text-left py-2 px-3 rounded-xl text-sm font-semibold text-gray-800 dark:text-zinc-100 hover:bg-red-50 flex items-center justify-between">
+                <span class="flex items-center gap-2"><i class="fa-solid fa-file-excel text-red-600"></i> File ke Excel</span>
+                <i class="fa-solid fa-chevron-right text-xs"></i>
+            </button>
+
+            <div class="border border-gray-200 dark:border-zinc-700 rounded-2xl overflow-hidden">
+                <button onclick="toggleMobilePdfAccordion()" class="w-full text-left p-3 bg-gray-50 dark:bg-zinc-900/60 font-semibold text-xs text-gray-800 dark:text-zinc-100 flex items-center justify-between">
+                    <span class="flex items-center gap-2">
+                        <i class="fa-solid fa-file-pdf text-red-600"></i> redPDF Tools
+                    </span>
+                    <i class="fa-solid fa-chevron-down text-xs transition-transform duration-200" id="mobile-pdf-chevron"></i>
+                </button>
+                <div id="mobile-pdf-accordion-content" class="hidden bg-white dark:bg-zinc-800 p-2 space-y-1">
+                    <button onclick="selectPdfTool('image-to-pdf'); toggleMobileMenu();" class="w-full text-left p-2 rounded-xl text-xs hover:bg-red-50 flex items-center gap-2 text-gray-700 dark:text-zinc-200">
+                        <i class="fa-solid fa-images text-red-600 w-5"></i> Image to PDF
+                    </button>
+                    <button onclick="selectPdfTool('pdf-to-image'); toggleMobileMenu();" class="w-full text-left p-2 rounded-xl text-xs hover:bg-red-50 flex items-center gap-2 text-gray-700 dark:text-zinc-200">
+                        <i class="fa-solid fa-file-image text-red-600 w-5"></i> PDF to Image
+                    </button>
+                    <button onclick="selectPdfTool('merge-pdf'); toggleMobileMenu();" class="w-full text-left p-2 rounded-xl text-xs hover:bg-red-50 flex items-center gap-2 text-gray-700 dark:text-zinc-200">
+                        <i class="fa-solid fa-object-group text-red-600 w-5"></i> Merge PDF
+                    </button>
+                    <button onclick="selectPdfTool('split-pdf'); toggleMobileMenu();" class="w-full text-left p-2 rounded-xl text-xs hover:bg-red-50 flex items-center gap-2 text-gray-700 dark:text-zinc-200">
+                        <i class="fa-solid fa-scissors text-red-600 w-5"></i> Split PDF
+                    </button>
+                    <button onclick="selectPdfTool('compress-pdf'); toggleMobileMenu();" class="w-full text-left p-2 rounded-xl text-xs hover:bg-red-50 flex items-center gap-2 text-gray-700 dark:text-zinc-200">
+                        <i class="fa-solid fa-file-compress text-red-600 w-5"></i> Compress PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hidden File Inputs -->
+    <input type="file" id="image-file-input" accept="image/jpeg,image/jpg,image/png,image/webp,image/avif" class="hidden" onchange="handleFileSelect(event)">
+    <input type="file" id="converter-file-input" accept="image/jpeg,image/jpg,image/png,image/webp,image/avif" multiple class="hidden" onchange="handleConverterFiles(event)">
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-2 sm:p-4 lg:p-6">
+
+        <!-- VIEW 1: PHOTO STUDIO WORKSPACE -->
+        <div id="main-view-photo" class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            <aside class="no-print lg:col-span-4 xl:col-span-3 flex flex-col space-y-4 order-2 lg:order-1">
+                <div class="bg-white dark:bg-zinc-800 rounded-2xl p-1.5 shadow-sm border border-gray-200 dark:border-zinc-700 flex overflow-x-auto no-scrollbar space-x-1">
+                    <button onclick="switchTab('crop')" id="tab-crop" class="tab-btn flex-1 min-w-[55px] py-2 px-2 text-xs font-semibold rounded-xl flex flex-col items-center gap-1 text-red-600 bg-red-50 dark:bg-red-950/40 dark:text-red-400 transition">
+                        <i class="fa-solid fa-crop text-base"></i>
+                        <span>Crop</span>
+                    </button>
+                    <button onclick="switchTab('adjust')" id="tab-adjust" class="tab-btn flex-1 min-w-[55px] py-2 px-2 text-xs font-semibold rounded-xl flex flex-col items-center gap-1 text-gray-500 hover:text-gray-900 transition">
+                        <i class="fa-solid fa-sliders text-base"></i>
+                        <span>Filter</span>
+                    </button>
+                    <button onclick="switchTab('text')" id="tab-text" class="tab-btn flex-1 min-w-[55px] py-2 px-2 text-xs font-semibold rounded-xl flex flex-col items-center gap-1 text-gray-500 hover:text-gray-900 transition">
+                        <i class="fa-solid fa-font text-base"></i>
+                        <span>Teks</span>
+                    </button>
+                    <button onclick="switchTab('download')" id="tab-download" class="tab-btn flex-1 min-w-[55px] py-2 px-2 text-xs font-semibold rounded-xl flex flex-col items-center gap-1 text-gray-500 hover:text-gray-900 transition">
+                        <i class="fa-solid fa-download text-base"></i>
+                        <span>Ekspor</span>
+                    </button>
+                    <button onclick="switchTab('print-setup')" id="tab-print-setup" class="tab-btn flex-1 min-w-[55px] py-2 px-2 text-xs font-semibold rounded-xl flex flex-col items-center gap-1 text-gray-500 hover:text-gray-900 transition">
+                        <i class="fa-solid fa-ruler-combined text-base"></i>
+                        <span>Cetak</span>
+                    </button>
+                </div>
+
+                <div class="bg-white dark:bg-zinc-800 rounded-2xl p-4 shadow-sm border border-gray-200 dark:border-zinc-700 flex-1 flex flex-col justify-between space-y-4">
+                    <!-- CROP PANEL -->
+                    <div id="panel-crop" class="tab-panel space-y-4">
+                        <h2 class="text-sm font-bold uppercase tracking-wider text-gray-500 flex items-center justify-between">
+                            <span>Potong Foto (Crop)</span>
+                            <i class="fa-solid fa-crop text-red-600"></i>
+                        </h2>
+                        <div>
+                            <label class="text-xs font-semibold text-gray-600 dark:text-zinc-300 block mb-2">Rasio Aspek Presets</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                <button onclick="setCropRatio(NaN)" class="ratio-btn px-2 py-1.5 text-xs border border-gray-200 dark:border-zinc-700 rounded-xl hover:border-red-600 font-medium transition">Free</button>
+                                <button onclick="setCropRatio(1)" class="ratio-btn px-2 py-1.5 text-xs border border-gray-200 dark:border-zinc-700 rounded-xl hover:border-red-600 font-medium transition">1 : 1</button>
+                                <button onclick="setCropRatio(3/4)" class="ratio-btn px-2 py-1.5 text-xs border border-gray-200 dark:border-zinc-700 rounded-xl hover:border-red-600 font-medium transition">3 : 4</button>
+                                <button onclick="setCropRatio(4/3)" class="ratio-btn px-2 py-1.5 text-xs border border-gray-200 dark:border-zinc-700 rounded-xl hover:border-red-600 font-medium transition">4 : 3</button>
+                                <button onclick="setCropRatio(16/9)" class="ratio-btn px-2 py-1.5 text-xs border border-gray-200 dark:border-zinc-700 rounded-xl hover:border-red-600 font-medium transition">16 : 9</button>
+                            </div>
+                        </div>
+                        <button onclick="applyCrop()" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 rounded-xl shadow-sm text-sm transition">
+                            Terapkan Potongan & Ke Lembar Cetak
+                        </button>
+                    </div>
+
+                    <!-- ADJUST PANEL -->
+                    <div id="panel-adjust" class="tab-panel space-y-4 hidden">
+                        <h2 class="text-sm font-bold uppercase tracking-wider text-gray-500 flex items-center justify-between">
+                            <span>Filter & Penyesuaian</span>
+                            <i class="fa-solid fa-sliders text-red-600"></i>
+                        </h2>
+                        <div class="space-y-3">
+                            <div>
+                                <div class="flex justify-between text-xs font-semibold text-gray-600 dark:text-zinc-300 mb-1">
+                                    <span>Kecerahan</span>
+                                    <span id="val-brightness">0%</span>
+                                </div>
+                                <input type="range" id="slider-brightness" min="-100" max="100" value="0" oninput="updateFilter()" class="w-full accent-red-600 h-2 bg-gray-200 dark:bg-zinc-700 rounded-lg">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs font-semibold text-gray-600 dark:text-zinc-300 mb-1">
+                                    <span>Kontras</span>
+                                    <span id="val-contrast">0%</span>
+                                </div>
+                                <input type="range" id="slider-contrast" min="-100" max="100" value="0" oninput="updateFilter()" class="w-full accent-red-600 h-2 bg-gray-200 dark:bg-zinc-700 rounded-lg">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs font-semibold text-gray-600 dark:text-zinc-300 mb-1">
+                                    <span>Saturasi</span>
+                                    <span id="val-saturate">0%</span>
+                                </div>
+                                <input type="range" id="slider-saturate" min="-100" max="100" value="0" oninput="updateFilter()" class="w-full accent-red-600 h-2 bg-gray-200 dark:bg-zinc-700 rounded-lg">
+                            </div>
+                        </div>
+                        <button onclick="applyFilterToImage()" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-xl text-xs shadow-sm transition">
+                            Simpan Efek Filter
+                        </button>
+                    </div>
+
+                    <!-- TEXT PANEL -->
+                    <div id="panel-text" class="tab-panel space-y-4 hidden">
+                        <h2 class="text-sm font-bold uppercase tracking-wider text-gray-500 flex items-center justify-between">
+                            <span>Tambah Teks</span>
+                            <i class="fa-solid fa-font text-red-600"></i>
+                        </h2>
+                        <input type="text" id="text-input" placeholder="Masukkan teks..." value="RedPixel Studio" class="w-full px-3 py-2 bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl text-sm focus:outline-none focus:border-red-600">
+                        <div class="flex items-center gap-2">
+                            <input type="color" id="text-color" value="#ffffff" class="w-10 h-10 rounded-lg border-0 cursor-pointer">
+                            <span class="text-xs font-medium text-gray-500">Warna Teks</span>
+                        </div>
+                        <button onclick="addTextToCanvas()" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 rounded-xl text-sm transition">Tambah Teks ke Gambar</button>
+                    </div>
+
+                    <!-- DOWNLOAD PANEL -->
+                    <div id="panel-download" class="tab-panel space-y-4 hidden">
+                        <h2 class="text-sm font-bold uppercase tracking-wider text-gray-500 flex items-center justify-between">
+                            <span>Ekspor & Download Foto</span>
+                            <i class="fa-solid fa-download text-red-600"></i>
+                        </h2>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-xs font-semibold text-gray-600 dark:text-zinc-300 block mb-1">Nama File Output</label>
+                                <input type="text" id="photo-filename-input" value="Foto_RedPixel" placeholder="Isi nama file..." class="w-full px-3 py-2 bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl text-xs font-semibold focus:outline-none focus:border-red-600">
+                            </div>
+                            <div>
+                                <label class="text-xs font-semibold text-gray-600 dark:text-zinc-300 block mb-1">Format File</label>
+                                <select id="photo-format-select" class="w-full px-3 py-2 bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl text-xs font-semibold">
+                                    <option value="jpg">JPG / JPEG</option>
+                                    <option value="png">PNG (Lossless)</option>
+                                    <option value="webp">WEBP</option>
+                                </select>
+                            </div>
+                            <button onclick="downloadEditedPhoto()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-xl shadow-md text-xs transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-file-arrow-down"></i>
+                                <span>Download Gambar Sekarang</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PRINT PANEL -->
+                    <div id="panel-print-setup" class="tab-panel space-y-4 hidden">
+                        <h2 class="text-sm font-bold uppercase tracking-wider text-gray-500 flex items-center justify-between">
+                            <span>Layout Cetak</span>
+                            <i class="fa-solid fa-ruler-combined text-red-600"></i>
+                        </h2>
+                        <select id="print-photo-size" onchange="updatePrintAreaPreview()" class="w-full px-3 py-2 bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl text-xs font-semibold">
+                            <option value="fit" selected>Full Page A4 (Foto Hasil Edit Asli Utuh)</option>
+                            <option value="3x4">3 x 4 cm (12 Pasfoto)</option>
+                            <option value="4x6">4 x 6 cm (8 Pasfoto)</option>
+                            <option value="2x3">2 x 3 cm (18 Pasfoto)</option>
+                        </select>
+
+                        <div id="print-full-page-options" class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-[11px] font-semibold text-gray-600 dark:text-zinc-300 block mb-1">Orientasi</label>
+                                <select id="print-orientation" onchange="updatePrintAreaPreview()" class="w-full px-2 py-2 bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl text-xs font-semibold">
+                                    <option value="portrait" selected>Portrait</option>
+                                    <option value="landscape">Landscape</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[11px] font-semibold text-gray-600 dark:text-zinc-300 block mb-1">Skala</label>
+                                <select id="print-scale-mode" onchange="updatePrintAreaPreview()" class="w-full px-2 py-2 bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl text-xs font-semibold">
+                                    <option value="fit" selected>Fit to Page</option>
+                                    <option value="fill">Fill Page</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <p class="text-[11px] text-gray-500 dark:text-zinc-400">
+                            Mode default menggunakan <strong>foto hasil edit milik Anda sendiri</strong> full 1 lembar A4 tanpa pemotongan. "Fit to Page" menampilkan seluruh foto; "Fill Page" memenuhi kertas (bagian tepi foto mungkin terpotong, tanpa distorsi).
+                        </p>
+                        <button onclick="handleDirectPrint()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl shadow-md text-xs transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-print"></i>
+                            <span>Cetak Sekarang (Full A4)</span>
+                        </button>
+                    </div>
+
+                    <div class="pt-3 border-t border-gray-100 dark:border-zinc-700 flex items-center justify-between text-xs">
+                        <button onclick="resetToHomeScreen()" class="text-red-600 font-bold hover:underline"><i class="fa-solid fa-house"></i> Ganti Foto</button>
+                        <button onclick="resetImageOriginal()" class="text-gray-500 hover:underline"><i class="fa-solid fa-arrows-rotate"></i> Reset Asli</button>
+                    </div>
+                </div>
+            </aside>
+
+            <section class="lg:col-span-8 xl:col-span-9 flex flex-col space-y-4 order-1 lg:order-2">
+                <div class="no-print bg-white dark:bg-zinc-800 rounded-2xl p-2 shadow-sm border border-gray-200 dark:border-zinc-700 flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <button id="view-btn-editor" onclick="switchView('editor')" class="px-3 sm:px-4 py-1.5 rounded-xl text-xs font-bold bg-red-600 text-white shadow-sm">Editor Canvas</button>
+                        <button id="view-btn-print" onclick="switchView('print')" class="px-3 sm:px-4 py-1.5 rounded-xl text-xs font-bold text-gray-600 dark:text-zinc-300 hover:bg-gray-100">Lembar Cetak (Full A4)</button>
+                    </div>
+                    <span id="image-dimensions-badge" class="text-xs text-gray-500 font-mono">0 x 0 px</span>
+                </div>
+
+                <div id="editor-workspace" class="relative bg-white dark:bg-zinc-800 rounded-2xl border border-gray-200 dark:border-zinc-700 shadow-sm p-3 sm:p-6 min-h-[400px] flex flex-col justify-center items-center overflow-hidden">
+                    <div id="drag-drop-zone" onclick="triggerFileInput()" class="w-full max-w-xl p-12 border-2 border-dashed border-red-300 dark:border-red-900/60 rounded-2xl bg-red-50/50 dark:bg-red-950/10 text-center cursor-pointer flex flex-col items-center justify-center space-y-3 group transition hover:border-red-500">
+                        <div class="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/40 text-red-600 flex items-center justify-center group-hover:scale-110 transition shadow-inner">
+                            <i class="fa-solid fa-cloud-arrow-up text-2xl"></i>
+                        </div>
+                        <h3 class="text-base font-bold">Upload Foto Anda</h3>
+                        <p class="text-xs text-gray-500">Klik untuk memilih gambar atau seret & lepas di sini</p>
+                    </div>
+
+                    <div id="cropper-container" class="w-full max-h-[550px] flex justify-center items-center overflow-hidden hidden">
+                        <img id="cropper-image" src="" alt="Photo" class="max-w-full max-h-[500px] object-contain">
+                    </div>
+
+                    <div id="fabric-container" class="w-full flex justify-center items-center overflow-x-auto hidden">
+                        <canvas id="fabric-canvas" class="border border-gray-200 rounded-xl shadow-sm"></canvas>
+                    </div>
+
+                    <div id="editor-spinner" class="absolute inset-0 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm z-30 flex flex-col items-center justify-center space-y-2 hidden">
+                        <i class="fa-solid fa-spinner fa-spin text-3xl text-red-600"></i>
+                        <span class="text-xs font-semibold">Memproses...</span>
+                    </div>
+                </div>
+
+                <!-- Print workspace strictly sized for A4 without clipping -->
+                <div id="print-workspace" class="hidden bg-gray-200 dark:bg-zinc-950 rounded-2xl border border-gray-300 dark:border-zinc-800 p-4 min-h-[450px] overflow-x-auto flex justify-center items-start shadow-inner">
+                    <div id="print-area" class="bg-white text-black shadow-2xl mx-auto flex flex-col items-center justify-center overflow-hidden" style="width: 210mm; height: 297mm; min-height: 297mm; max-height: 297mm; box-sizing: border-box;">
+                        <div id="print-grid" class="flex justify-center items-center w-full h-full p-0 m-0"></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- VIEW 2: IMAGE CONVERTER -->
+        <div id="main-view-converter" class="hidden space-y-6">
+            <div class="bg-white dark:bg-zinc-800 rounded-2xl p-6 border border-gray-200 dark:border-zinc-700 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex items-center space-x-4">
+                    <div class="p-3.5 bg-red-600 text-white rounded-2xl shadow-lg shadow-red-600/20 text-2xl flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-file-arrow-down"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">Image Studio</span>
+                            <span class="text-xs text-gray-500 dark:text-zinc-400 font-semibold">100% Client-Side Processing</span>
+                        </div>
+                        <h2 class="text-xl font-extrabold text-gray-900 dark:text-zinc-100">Image Converter</h2>
+                        <p class="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">Ubah format & kompresi gambar (PNG, JPG, WEBP, AVIF)</p>
+                    </div>
+                </div>
+                <div>
+                    <button onclick="resetConverterWorkspace()" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 text-gray-700 dark:text-zinc-200 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        <span>Reset Converter</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Upload Area -->
+            <div id="converter-upload-card" class="bg-white dark:bg-zinc-800 rounded-2xl p-6 sm:p-12 border border-gray-200 dark:border-zinc-700 shadow-sm text-center">
+                <div onclick="triggerConverterFileInput()" ondragover="handleConverterDragOver(event)" ondragleave="handleConverterDragLeave(event)" ondrop="handleConverterDrop(event)" class="w-full max-w-2xl mx-auto p-8 sm:p-12 border-2 border-dashed border-red-300 dark:border-red-900/60 rounded-2xl bg-red-50/40 dark:bg-red-950/10 hover:bg-red-50 cursor-pointer transition flex flex-col items-center justify-center space-y-4 group">
+                    <div class="w-20 h-20 rounded-full bg-red-100 dark:bg-red-900/40 text-red-600 flex items-center justify-center group-hover:scale-110 transition shadow-inner">
+                        <i class="fa-solid fa-cloud-arrow-up text-3xl"></i>
+                    </div>
+                    <div class="space-y-1">
+                        <h3 class="text-base sm:text-lg font-bold text-gray-800 dark:text-zinc-100">Upload Gambar Anda</h3>
+                        <p class="text-xs text-gray-500 dark:text-zinc-400">Klik untuk memilih gambar atau seret & lepas di sini</p>
+                    </div>
+                    <div class="flex flex-wrap items-center justify-center gap-2 pt-2">
+                        <span class="px-2.5 py-1 bg-white dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 rounded-md text-[10px] font-semibold border border-gray-200 dark:border-zinc-700">PNG</span>
+                        <span class="px-2.5 py-1 bg-white dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 rounded-md text-[10px] font-semibold border border-gray-200 dark:border-zinc-700">JPG</span>
+                        <span class="px-2.5 py-1 bg-white dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 rounded-md text-[10px] font-semibold border border-gray-200 dark:border-zinc-700">WEBP</span>
+                        <span class="px-2.5 py-1 bg-white dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 rounded-md text-[10px] font-semibold border border-gray-200 dark:border-zinc-700">AVIF</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Converter Workspace Area -->
+            <div id="converter-workspace-area" class="hidden space-y-6">
+                <div class="bg-white dark:bg-zinc-800 rounded-2xl p-5 border border-gray-200 dark:border-zinc-700 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full md:w-auto">
+                        <div class="flex items-center space-x-2">
+                            <span class="font-bold text-xs text-gray-800 dark:text-zinc-100">Ubah semua ke:</span>
+                            <select id="batch-output-format" onchange="updateBatchOutputFormat(this.value)" class="px-3 py-2 bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl text-xs font-bold text-red-600 focus:outline-none">
+                                <option value="WEBP">WEBP</option>
+                                <option value="JPG">JPG</option>
+                                <option value="JPEG">JPEG</option>
+                                <option value="PNG">PNG</option>
+                                <option value="AVIF">AVIF</option>
+                            </select>
+                        </div>
+
+                        <div class="flex items-center space-x-2 w-full sm:w-auto">
+                            <span class="font-bold text-xs text-gray-800 dark:text-zinc-100 shrink-0">Prefix Nama File:</span>
+                            <input type="text" id="batch-filename-prefix" placeholder="Misal: Hasil_Foto" oninput="applyBatchFilenamePrefix(this.value)" class="px-3 py-1.5 bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl text-xs font-medium focus:outline-none focus:border-red-600 w-36">
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-2 w-full md:w-auto justify-end">
+                        <button onclick="triggerConverterFileInput()" class="px-3.5 py-2 bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 text-gray-700 dark:text-zinc-200 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-plus text-red-600"></i> Tambah File
+                        </button>
+                        <button onclick="convertAllImages()" id="btn-convert-all" class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-md transition flex items-center gap-2">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span id="btn-convert-all-text">Convert All Images</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Global Settings & Quality Slider -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white dark:bg-zinc-800 rounded-2xl p-4 border border-gray-200 dark:border-zinc-700 shadow-sm space-y-2">
+                        <div class="flex justify-between text-xs font-semibold text-gray-600 dark:text-zinc-300">
+                            <span>KUALITAS OUTPUT</span>
+                            <span id="converter-quality-val" class="font-bold text-red-600">90%</span>
+                        </div>
+                        <input type="range" id="converter-quality-slider" min="10" max="100" value="90" oninput="updateConverterQuality(this.value)" class="w-full accent-red-600 h-2 bg-gray-200 dark:bg-zinc-700 rounded-lg">
+                    </div>
+
+                    <div class="bg-white dark:bg-zinc-800 rounded-2xl p-4 border border-gray-200 dark:border-zinc-700 shadow-sm space-y-2">
+                        <label class="text-xs font-semibold text-gray-600 dark:text-zinc-300 block">LATAR TRANSPARANSI (Untuk JPG)</label>
+                        <select id="converter-bg-color" class="w-full px-3 py-1.5 bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl text-xs font-medium">
+                            <option value="white">Putih (Default)</option>
+                            <option value="black">Hitam</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- File List Grid -->
+                <div id="converter-file-list" class="space-y-4"></div>
+            </div>
+        </div>
+
+        <!-- VIEW 3: redPDF - PDF TOOLS WORKSPACE -->
+        <div id="main-view-pdf" class="hidden space-y-6">
+            <div class="bg-white dark:bg-zinc-800 rounded-2xl p-6 border border-gray-200 dark:border-zinc-700 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex items-center space-x-4">
+                    <div class="p-3.5 bg-red-600 text-white rounded-2xl shadow-lg shadow-red-600/20 text-2xl flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-file-pdf"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">redPDF</span>
+                            <span class="text-xs text-gray-500 dark:text-zinc-400 font-semibold">Client-Side PDF Processor</span>
+                        </div>
+                        <h2 id="pdf-tool-title" class="text-xl font-extrabold text-gray-900 dark:text-zinc-100">Image to PDF</h2>
+                        <p id="pdf-tool-description" class="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">Konversi gambar menjadi satu file PDF.</p>
+                    </div>
+                </div>
+                <button onclick="switchMainView('photo')" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-red-50 text-red-600 hover:bg-red-100 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Photo Studio</span>
+                </button>
+            </div>
+
+            <!-- PDF Upload Card -->
+            <div id="pdf-upload-card" class="bg-white dark:bg-zinc-800 rounded-2xl p-8 sm:p-12 border border-gray-200 dark:border-zinc-700 shadow-sm text-center">
+                <input type="file" id="pdf-file-input" accept="application/pdf,.pdf" multiple class="hidden" onchange="handlePdfFilesSelected(event)">
+                <div onclick="triggerPdfFileInput()" class="w-full max-w-2xl mx-auto p-10 border-2 border-dashed border-red-300 dark:border-red-900/60 rounded-2xl bg-red-50/40 text-center cursor-pointer transition flex flex-col items-center justify-center space-y-4 group hover:border-red-500">
+                    <div class="w-20 h-20 rounded-full bg-red-100 text-red-600 flex items-center justify-center group-hover:scale-110 transition shadow-inner">
+                        <i class="fa-solid fa-cloud-arrow-up text-3xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800 dark:text-zinc-100">Upload File untuk redPDF</h3>
+                        <p class="text-xs text-gray-500 mt-1">Pilih file PDF atau Gambar dari perangkat Anda</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PDF Workspace Dynamic Options & Action Button -->
+            <div id="pdf-workspace-area" class="hidden space-y-6">
+                <!-- Config Options Panel -->
+                <div id="pdf-config-panel" class="bg-white dark:bg-zinc-800 rounded-2xl p-5 border border-gray-200 dark:border-zinc-700 shadow-sm space-y-4">
+                    <!-- Dynamic configs rendered here depending on tool -->
+                </div>
+
+                <!-- Preview Grid / File List -->
+                <div class="flex items-center justify-between">
+                    <p id="pdf-files-count-label" class="text-xs font-semibold text-gray-500 dark:text-zinc-400"></p>
+                    <div class="flex items-center gap-2">
+                        <button onclick="triggerPdfFileInput()" class="px-3 py-1.5 bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 text-gray-700 dark:text-zinc-200 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-plus text-red-600"></i> Tambah File
+                        </button>
+                        <button onclick="clearAllPdfFiles()" class="px-3 py-1.5 bg-gray-100 dark:bg-zinc-700 hover:bg-red-50 hover:text-red-600 text-gray-700 dark:text-zinc-200 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-trash"></i> Hapus Semua
+                        </button>
+                    </div>
+                </div>
+                <div id="pdf-files-preview-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+
+                <!-- Process Action Button -->
+                <button id="btn-execute-pdf" onclick="executePdfTool()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow-lg text-sm transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-gear"></i>
+                    <span id="btn-execute-pdf-text">Proses File Sekarang</span>
+                </button>
+
+                <!-- Real-time processing status (no fake progress %) -->
+                <div id="pdf-processing-status" class="hidden bg-white dark:bg-zinc-800 rounded-2xl p-5 border border-gray-200 dark:border-zinc-700 shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-spinner fa-spin text-red-600"></i>
+                        <span id="pdf-processing-status-text" class="text-xs font-semibold text-gray-700 dark:text-zinc-200">Memproses...</span>
+                    </div>
+                </div>
+
+                <!-- Result panel: real output, real stats, real download links -->
+                <div id="pdf-results-panel" class="hidden space-y-4"></div>
+            </div>
+        </div>
+
+        <!-- VIEW 4: FILE TO EXCEL -->
+        <div id="main-view-excel" class="hidden space-y-6">
+            <div class="bg-white dark:bg-zinc-800 rounded-2xl p-6 border border-gray-200 dark:border-zinc-700 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex items-center space-x-4">
+                    <div class="p-3.5 bg-red-600 text-white rounded-2xl shadow-lg shadow-red-600/20 text-2xl flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-file-excel"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">File Tools</span>
+                            <span class="text-xs text-gray-500 dark:text-zinc-400 font-semibold">100% Client-Side Processing</span>
+                        </div>
+                        <h2 class="text-xl font-extrabold text-gray-900 dark:text-zinc-100">File ke Excel</h2>
+                        <p class="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">Konversi CSV, JSON, XLS/XLSX, TXT, atau PDF menjadi file .xlsx yang sah.</p>
+                    </div>
+                </div>
+                <button onclick="resetExcelWorkspace()" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 text-gray-700 dark:text-zinc-200 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    <span>Reset</span>
+                </button>
+            </div>
+
+            <!-- Upload Card -->
+            <div id="excel-upload-card" class="bg-white dark:bg-zinc-800 rounded-2xl p-6 sm:p-12 border border-gray-200 dark:border-zinc-700 shadow-sm text-center">
+                <input type="file" id="excel-file-input" accept=".csv,.json,.xls,.xlsx,.txt,.pdf" class="hidden" onchange="handleExcelFileSelected(event)">
+                <div onclick="triggerExcelFileInput()" ondragover="handleExcelDragOver(event)" ondragleave="handleExcelDragLeave(event)" ondrop="handleExcelDrop(event)" id="excel-drop-zone" class="w-full max-w-2xl mx-auto p-8 sm:p-12 border-2 border-dashed border-red-300 dark:border-red-900/60 rounded-2xl bg-red-50/40 dark:bg-red-950/10 hover:bg-red-50 cursor-pointer transition flex flex-col items-center justify-center space-y-4 group">
+                    <div class="w-20 h-20 rounded-full bg-red-100 dark:bg-red-900/40 text-red-600 flex items-center justify-center group-hover:scale-110 transition shadow-inner">
+                        <i class="fa-solid fa-cloud-arrow-up text-3xl"></i>
+                    </div>
+                    <div class="space-y-1">
+                        <h3 class="text-base sm:text-lg font-bold text-gray-800 dark:text-zinc-100">Drop file Anda di sini</h3>
+                        <p class="text-xs text-gray-500 dark:text-zinc-400">atau klik untuk memilih file dari perangkat Anda</p>
+                    </div>
+                    <div class="flex flex-wrap items-center justify-center gap-2 pt-2">
+                        <span class="px-2.5 py-1 bg-white dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 rounded-md text-[10px] font-semibold border border-gray-200 dark:border-zinc-700">CSV</span>
+                        <span class="px-2.5 py-1 bg-white dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 rounded-md text-[10px] font-semibold border border-gray-200 dark:border-zinc-700">JSON</span>
+                        <span class="px-2.5 py-1 bg-white dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 rounded-md text-[10px] font-semibold border border-gray-200 dark:border-zinc-700">XLS / XLSX</span>
+                        <span class="px-2.5 py-1 bg-white dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 rounded-md text-[10px] font-semibold border border-gray-200 dark:border-zinc-700">TXT</span>
+                        <span class="px-2.5 py-1 bg-white dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 rounded-md text-[10px] font-semibold border border-gray-200 dark:border-zinc-700">PDF</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workspace: selected file + options -->
+            <div id="excel-workspace-area" class="hidden space-y-6">
+                <div id="excel-file-card" class="bg-white dark:bg-zinc-800 rounded-2xl p-5 border border-gray-200 dark:border-zinc-700 shadow-sm flex items-center justify-between gap-4"></div>
+
+                <div id="excel-options-panel" class="bg-white dark:bg-zinc-800 rounded-2xl p-5 border border-gray-200 dark:border-zinc-700 shadow-sm space-y-3 hidden"></div>
+
+                <button id="btn-execute-excel" onclick="executeFileToExcel()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow-lg text-sm transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-file-export"></i>
+                    <span>Konversi ke Excel</span>
+                </button>
+
+                <div id="excel-processing-status" class="hidden bg-white dark:bg-zinc-800 rounded-2xl p-5 border border-gray-200 dark:border-zinc-700 shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-spinner fa-spin text-red-600"></i>
+                        <span id="excel-processing-status-text" class="text-xs font-semibold text-gray-700 dark:text-zinc-200">Memproses...</span>
+                    </div>
+                </div>
+
+                <div id="excel-result-panel" class="hidden"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+    <!-- Main application logic -->
+    <script src="assets/script.js"></script>
+    <script src="assets/pdf-tools.js"></script>
+    <script src="assets/excel-tools.js"></script>
+</body>
+</html>
