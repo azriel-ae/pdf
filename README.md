@@ -80,24 +80,4 @@ Lalu buka: `http://localhost:8080/index.html`
 > `assets/config.js`, dan `assets/script.js`. Pastikan folder `assets/` tetap
 > berada di level yang sama (sejajar) dengan `index.html`.
 
-## 📝 Catatan Perubahan (Refactor)
 
-Perubahan yang dilakukan **hanya bersifat kerapian struktur & kode**, bukan
-perubahan fungsi:
-
-1. Blok `<style>...</style>` yang sebelumnya inline di `<head>` dipindahkan
-   utuh ke `assets/style.css`.
-2. Blok `<script>...</script>` konfigurasi Tailwind & PDF.js worker
-   dipindahkan ke `assets/config.js`.
-3. Blok `<script>...</script>` besar berisi seluruh logika aplikasi
-   dipindahkan ke `assets/script.js`.
-4. `index.html` tetap berada di root proyek dan kini hanya berisi markup,
-   dengan referensi eksternal ke file CSS & JS di folder `assets/`.
-5. Memperbaiki satu kelas Tailwind yang tidak valid (`py-0.2` → `py-0.5` pada
-   badge "redPDF") agar konsisten dengan badge sejenis lainnya — murni
-   perbaikan visual, tidak memengaruhi perilaku aplikasi.
-6. Merapikan indentasi & baris kosong berlebih.
-
-Semua `id` elemen yang dipanggil dari JavaScript (`getElementById`) dan semua
-fungsi yang dipanggil dari atribut `onclick`/`onchange`/dll di HTML sudah
-diverifikasi cocok satu sama lain — tidak ada fungsi atau elemen yang hilang.
