@@ -665,7 +665,7 @@ function selectPdfTool(toolKey) {
     };
 
     const descMap = {
-        'image-to-pdf': 'Gabungkan beberapa foto JPG/PNG menjadi 1 file dokumen PDF.',
+        'image-to-pdf': 'Gabungkan foto (JPG, PNG, WEBP, GIF, BMP, AVIF, dll) menjadi 1 file dokumen PDF.',
         'pdf-to-image': 'Ekstrak setiap halaman PDF menjadi gambar kualitas tinggi.',
         'merge-pdf': 'Gabungkan dua atau lebih file PDF menjadi satu file lengkap.',
         'split-pdf': 'Pisahkan halaman tertentu dari file PDF Anda.',
@@ -674,6 +674,18 @@ function selectPdfTool(toolKey) {
 
     document.getElementById('pdf-tool-title').innerText = titleMap[toolKey] || 'redPDF Tool';
     document.getElementById('pdf-tool-description').innerText = descMap[toolKey] || '';
+
+    // The shared file input's accept filter depends on the tool: image-to-pdf
+    // needs image files, every other redPDF tool needs actual PDF files.
+    const fileInput = document.getElementById('pdf-file-input');
+    const uploadHint = document.getElementById('pdf-upload-hint');
+    if (toolKey === 'image-to-pdf') {
+        fileInput.setAttribute('accept', 'image/*');
+        if (uploadHint) uploadHint.innerText = 'Pilih satu atau beberapa file gambar dari perangkat Anda';
+    } else {
+        fileInput.setAttribute('accept', 'application/pdf,.pdf');
+        if (uploadHint) uploadHint.innerText = 'Pilih file PDF dari perangkat Anda';
+    }
 
     // Switching tools invalidates the previous selection/results (different tools need
     // different numbers of files: single-file vs multi-file for Merge PDF).
@@ -697,21 +709,26 @@ function handlePdfFilesSelected(e) {
     const files = Array.from(e.target.files);
     if (!files.length) return;
 
-    const nonPdf = files.filter(f => f.type !== 'application/pdf' && !f.name.toLowerCase().endsWith('.pdf'));
-    const pdfOnly = files.filter(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'));
-    if (nonPdf.length) {
-        showToast(`${nonPdf.length} file dilewati (bukan PDF).`);
+    const wantsImages = state.activePdfTool === 'image-to-pdf';
+    const isPdfFile = f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf');
+    const isImageFile = f => f.type.startsWith('image/') || /\.(png|jpe?g|webp|gif|bmp|avif|svg|ico|tiff?)$/i.test(f.name);
+
+    const matching = files.filter(wantsImages ? isImageFile : isPdfFile);
+    const rejected = files.length - matching.length;
+
+    if (rejected) {
+        showToast(`${rejected} file dilewati (${wantsImages ? 'bukan file gambar' : 'bukan file PDF'}).`);
     }
-    if (!pdfOnly.length) {
+    if (!matching.length) {
         e.target.value = '';
         return;
     }
 
-    // Single-file tools replace the selection; Merge PDF accumulates files
-    if (state.activePdfTool === 'merge-pdf') {
-        state.pdfFiles = state.pdfFiles.concat(pdfOnly);
+    // Single-file tools replace the selection; Merge PDF and Image to PDF accumulate files
+    if (state.activePdfTool === 'merge-pdf' || state.activePdfTool === 'image-to-pdf') {
+        state.pdfFiles = state.pdfFiles.concat(matching);
     } else {
-        state.pdfFiles = pdfOnly;
+        state.pdfFiles = matching;
     }
 
     document.getElementById('pdf-upload-card').classList.add('hidden');
@@ -722,7 +739,7 @@ function handlePdfFilesSelected(e) {
     e.target.value = '';
 
     renderPdfFilesPreview();
-    showToast(`${pdfOnly.length} file PDF ditambahkan.`);
+    showToast(`${matching.length} file ${wantsImages ? 'gambar' : 'PDF'} ditambahkan.`);
 }
 
 function removePdfFile(index) {
@@ -833,25 +850,52 @@ function renderPdfFilesPreview() {
         countLabel.innerText = `${state.pdfFiles.length} file dipilih \u2022 ${totalKb.toFixed(1)} KB total`;
     }
 
+    const isImageMode = state.activePdfTool === 'image-to-pdf';
+
     state.pdfFiles.forEach((file, index) => {
         const card = document.createElement('div');
         card.className = 'bg-white dark:bg-zinc-800 rounded-2xl p-4 border border-gray-200 dark:border-zinc-700 shadow-sm flex items-center justify-between gap-2';
-        card.innerHTML = `
-            <div class="flex items-center space-x-3 overflow-hidden">
-                <div class="p-3 bg-red-100 text-red-600 rounded-xl shrink-0">
-                    <i class="fa-solid fa-file-pdf text-lg"></i>
+
+        if (isImageMode) {
+            const previewUrl = URL.createObjectURL(file);
+            card.innerHTML = `
+                <div class="flex items-center space-x-3 overflow-hidden">
+                    <img src="${previewUrl}" class="w-12 h-12 object-cover rounded-lg border border-gray-200 dark:border-zinc-700 shrink-0" alt="${file.name}">
+                    <div class="truncate">
+                        <span class="text-[10px] font-bold text-red-600 bg-red-50 dark:bg-red-950/40 px-1.5 py-0.5 rounded">Hal. ${index + 1}</span>
+                        <h4 class="text-xs font-bold text-gray-800 dark:text-zinc-100 truncate">${file.name}</h4>
+                        <p class="text-[10px] text-gray-500">${(file.size / 1024).toFixed(1)} KB</p>
+                    </div>
                 </div>
-                <div class="truncate">
-                    <h4 class="text-xs font-bold text-gray-800 dark:text-zinc-100 truncate">${file.name}</h4>
-                    <p class="text-[10px] text-gray-500">${(file.size / 1024).toFixed(1)} KB</p>
+                <button onclick="removePdfFile(${index})" class="p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/40 text-xs shrink-0" title="Hapus file ini">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            `;
+        } else {
+            card.innerHTML = `
+                <div class="flex items-center space-x-3 overflow-hidden">
+                    <div class="p-3 bg-red-100 text-red-600 rounded-xl shrink-0">
+                        <i class="fa-solid fa-file-pdf text-lg"></i>
+                    </div>
+                    <div class="truncate">
+                        <h4 class="text-xs font-bold text-gray-800 dark:text-zinc-100 truncate">${file.name}</h4>
+                        <p class="text-[10px] text-gray-500">${(file.size / 1024).toFixed(1)} KB</p>
+                    </div>
                 </div>
-            </div>
-            <button onclick="removePdfFile(${index})" class="p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/40 text-xs shrink-0" title="Hapus file ini">
-                <i class="fa-solid fa-trash"></i>
-            </button>
-        `;
+                <button onclick="removePdfFile(${index})" class="p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/40 text-xs shrink-0" title="Hapus file ini">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            `;
+        }
         container.appendChild(card);
     });
+
+    if (isImageMode && state.pdfFiles.length > 1) {
+        const hint = document.createElement('div');
+        hint.className = 'sm:col-span-2 lg:col-span-3 text-xs text-gray-500 dark:text-zinc-400 bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl p-3';
+        hint.innerHTML = '<i class="fa-solid fa-circle-info text-red-500"></i> Halaman PDF dibuat sesuai urutan file di atas (Hal. 1, 2, 3, ...). Hapus lalu tambahkan ulang jika ingin mengubah urutan.';
+        container.appendChild(hint);
+    }
 
     if (state.activePdfTool === 'merge-pdf' && state.pdfFiles.length < 2) {
         const hint = document.createElement('div');
@@ -878,31 +922,68 @@ async function executePdfTool() {
 
     try {
         if (state.activePdfTool === 'image-to-pdf') {
-            setPdfProcessingStatus('Menyusun halaman PDF...');
+            const A4_W = 595.28, A4_H = 841.89; // A4 in PDF points
             const pdfDoc = await PDFLib.PDFDocument.create();
+            let addedCount = 0;
+            const skipped = [];
 
             for (const file of state.pdfFiles) {
-                const bytes = await file.arrayBuffer();
-                let img;
-                if (file.type.includes('png')) {
-                    img = await pdfDoc.embedPng(bytes);
-                } else {
-                    img = await pdfDoc.embedJpg(bytes);
+                setPdfProcessingStatus(`Memproses ${file.name}...`);
+                let imgData;
+                try {
+                    // pdf-lib can only embed PNG/JPG directly, but we want to accept
+                    // ANY format the browser can decode (WEBP, GIF, BMP, AVIF, SVG, ...).
+                    // So we draw the image onto a canvas and re-encode it as PNG first -
+                    // this normalizes every supported format into something pdf-lib
+                    // understands, using the browser's own real image decoder (no fake
+                    // conversion, no assumptions about the original format).
+                    imgData = await loadImageAsPngBytes(file);
+                } catch (err) {
+                    console.error(`Gagal memuat ${file.name}:`, err);
+                    skipped.push(file.name);
+                    continue;
                 }
 
-                const page = pdfDoc.addPage([595.28, 841.89]); // A4 portrait size
-                page.drawImage(img, {
-                    x: 0,
-                    y: 0,
-                    width: 595.28,
-                    height: 841.89
-                });
+                const embeddedImg = await pdfDoc.embedPng(imgData.pngBytes);
+
+                // Fit the image inside the A4 page keeping its aspect ratio (centered),
+                // instead of stretching it to fill 595x842 which would distort any
+                // image that isn't already in an A4 ratio.
+                const scale = Math.min(A4_W / embeddedImg.width, A4_H / embeddedImg.height);
+                const w = embeddedImg.width * scale;
+                const h = embeddedImg.height * scale;
+                const x = (A4_W - w) / 2;
+                const y = (A4_H - h) / 2;
+
+                const page = pdfDoc.addPage([A4_W, A4_H]);
+                page.drawImage(embeddedImg, { x, y, width: w, height: h });
+                addedCount++;
             }
 
+            if (addedCount === 0) {
+                setPdfProcessingStatus(null);
+                showToast('Tidak ada gambar yang berhasil diproses. Formatnya mungkin tidak didukung oleh browser Anda.');
+                return;
+            }
+
+            setPdfProcessingStatus('Menulis file PDF...');
             const pdfBytes = await pdfDoc.save();
             setPdfProcessingStatus(null);
             downloadBlob(new Blob([pdfBytes], { type: 'application/pdf' }), 'RedPixel_Hasil.pdf');
-            showToast('PDF berhasil dibuat!');
+
+            if (skipped.length) {
+                showToast(`PDF dibuat dari ${addedCount} gambar. ${skipped.length} file dilewati (gagal dibaca): ${skipped.join(', ')}`);
+            } else {
+                showToast(`PDF berhasil dibuat dari ${addedCount} gambar!`);
+            }
+
+            showPdfResults(pdfResultHeader(
+                'Image to PDF Selesai',
+                pdfStatItem('Jumlah Halaman', addedCount) +
+                pdfStatItem('File Dilewati', skipped.length) +
+                pdfStatItem('Ukuran File', formatBytes(pdfBytes.byteLength)) +
+                pdfStatItem('Output', 'RedPixel_Hasil.pdf')
+            ));
         } else if (state.activePdfTool === 'pdf-to-image') {
             await realExecutePdfToImage();
         } else if (state.activePdfTool === 'merge-pdf') {

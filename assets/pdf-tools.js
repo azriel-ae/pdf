@@ -12,6 +12,45 @@
    ===================================================================== */
 
 /* ---------------------------------------------------------------- */
+/* Image normalization for Image -> PDF (supports any format the     */
+/* browser's own <img> decoder understands: PNG, JPG, WEBP, GIF,     */
+/* BMP, AVIF, SVG, ICO, etc. - not just PNG/JPG which is all pdf-lib */
+/* can embed natively).                                               */
+/* ---------------------------------------------------------------- */
+function loadImageAsPngBytes(file) {
+    return new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+            try {
+                const width = img.naturalWidth || img.width;
+                const height = img.naturalHeight || img.height;
+                if (!width || !height) throw new Error('Ukuran gambar tidak terbaca (0x0).');
+
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                const dataUrl = canvas.toDataURL('image/png');
+                const pngBytes = Uint8Array.from(atob(dataUrl.split(',')[1]), c => c.charCodeAt(0));
+                URL.revokeObjectURL(url);
+                resolve({ pngBytes, width, height });
+            } catch (err) {
+                URL.revokeObjectURL(url);
+                reject(err);
+            }
+        };
+        img.onerror = () => {
+            URL.revokeObjectURL(url);
+            reject(new Error('Browser tidak bisa mendekode file ini sebagai gambar.'));
+        };
+        img.src = url;
+    });
+}
+
+/* ---------------------------------------------------------------- */
 /* Shared status / result UI helpers                                 */
 /* ---------------------------------------------------------------- */
 function setPdfProcessingStatus(text) {
