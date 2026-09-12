@@ -4,24 +4,6 @@ Aplikasi web **Photo & PDF Suite** yang berjalan 100% di sisi klien (client-side
 tidak ada file yang diunggah ke server mana pun. Semua proses (edit foto, crop,
 filter, konversi format gambar, dan olah PDF) dilakukan langsung di browser.
 
-Repo ini sebelumnya berupa **satu file `index.html`** raksasa (HTML + CSS + JS
-digabung jadi satu). Struktur ini dirapikan menjadi `index.html` di root
-proyek + satu folder `assets/` untuk semua CSS & JS, agar lebih mudah dibaca
-dan dirawat — **tanpa mengubah fungsi/logika aplikasi sama sekali**. Semua
-fitur bekerja persis seperti sebelumnya.
-
-## 📁 Struktur Folder
-
-```
-RedPixel-Studio/
-├── index.html         # Halaman utama (markup) + referensi ke assets/
-├── assets/
-│   ├── style.css        # Custom CSS (di atas Tailwind CSS yang dimuat via CDN)
-│   ├── config.js         # Konfigurasi tema Tailwind + setup worker PDF.js
-│   └── script.js         # Seluruh logika aplikasi (Photo Studio, Converter, redPDF Tools)
-└── README.md
-```
-
 ## ✨ Fitur
 
 ### 📸 Photo Studio
