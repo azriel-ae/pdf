@@ -6,7 +6,7 @@ filter, konversi format gambar, dan olah PDF) dilakukan langsung di browser.
 
 ## ✨ Fitur
 
-### 📸 Photo Studio
+###  Photo Studio
 - Upload foto (klik atau drag & drop)
 - Crop dengan preset rasio (Free, 1:1, 3:4, 4:3, 16:9)
 - Penyesuaian **Kecerahan**, **Kontras**, **Saturasi**
@@ -14,19 +14,21 @@ filter, konversi format gambar, dan olah PDF) dilakukan langsung di browser.
 - Export/download hasil edit ke **JPG / PNG / WEBP**
 - Cetak langsung ke ukuran A4 penuh, atau layout pasfoto (3x4, 4x6, 2x3 cm)
 
-### 🖼️ Image Converter
+###  Image Converter
 - Konversi banyak gambar sekaligus ke format **PNG / JPG / WEBP**
 - Pengaturan kualitas kompresi
 - Opsi warna latar belakang saat konversi ke format tanpa transparansi
 
-### 📄 redPDF Tools
+###  PDF convert
 - **Image to PDF** – gabungkan beberapa gambar jadi satu PDF
 - **PDF to Image** – ekstrak setiap halaman PDF menjadi gambar
 - **Merge PDF** – gabungkan beberapa file PDF
 - **Split PDF** – ambil halaman tertentu dari PDF
 - **Compress PDF** – perkecil ukuran file PDF
 
-## 🛠️ Teknologi
+  
+
+##  Teknologi
 
 Semua library dimuat lewat CDN (tidak perlu instalasi/build tools):
 
@@ -41,20 +43,5 @@ Semua library dimuat lewat CDN (tidak perlu instalasi/build tools):
 | [PDF.js](https://mozilla.github.io/pdf.js/) | Render/ekstrak halaman PDF |
 | [JSZip](https://stuk.github.io/jszip/) | Kompres hasil batch jadi ZIP |
 
-## 🚀 Cara Menjalankan
-
-Karena murni HTML/CSS/JS statis, cukup buka `index.html` langsung di browser,
-**atau** jalankan local server (disarankan agar semua fitur berjalan mulus):
-
-```bash
-# Dari folder root proyek (RedPixel-Studio/)
-python3 -m http.server 8080
-```
-
-Lalu buka: `http://localhost:8080/index.html`
-
-> `index.html` mereferensikan file lewat path relatif `assets/style.css`,
-> `assets/config.js`, dan `assets/script.js`. Pastikan folder `assets/` tetap
-> berada di level yang sama (sejajar) dengan `index.html`.
 
 
