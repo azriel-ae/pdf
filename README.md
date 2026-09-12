@@ -1,10 +1,10 @@
-# RedPixel Studio & redPDF Tools
+# PDF Tools
 
 Aplikasi web **Photo & PDF Suite** yang berjalan 100% di sisi klien (client-side) —
 tidak ada file yang diunggah ke server mana pun. Semua proses (edit foto, crop,
 filter, konversi format gambar, dan olah PDF) dilakukan langsung di browser.
 
-## ✨ Fitur
+##  Fitur
 
 ###  Photo Studio
 - Upload foto (klik atau drag & drop)
