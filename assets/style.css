@@ -39,6 +39,18 @@
     scrollbar-width: none;
 }
 
+/* Mobile tidiness: keep long filenames/labels from forcing the page to
+   scroll sideways, and trim a few paddings/sizes that felt oversized on
+   small phone screens. */
+@media (max-width: 480px) {
+    body {
+        overflow-x: hidden;
+    }
+    h1, h2, h3, p, span, label {
+        overflow-wrap: anywhere;
+    }
+}
+
 /* PRINT MEDIA STYLES - Full Page A4 Print Layout (Portrait or Landscape,
    Fit to Page or Fill Page). Default @page is portrait; handleDirectPrint()
    injects a <style id="dynamic-print-orientation-style"> tag with the

@@ -51,6 +51,55 @@ function loadImageAsPngBytes(file) {
 }
 
 /* ---------------------------------------------------------------- */
+/* Image -> PDF variant of the loader above: also downscales the image to  */
+/* a target resolution and re-encodes it as a quality-controlled JPEG      */
+/* instead of a lossless PNG, so full-resolution phone photos don't turn   */
+/* into a bloated multi-page PDF. Never upscales an image smaller than     */
+/* the target. */
+/* ---------------------------------------------------------------- */
+function loadImageAsJpegBytesForPdf(file, maxDimensionPx, quality) {
+    return new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+            try {
+                const naturalWidth = img.naturalWidth || img.width;
+                const naturalHeight = img.naturalHeight || img.height;
+                if (!naturalWidth || !naturalHeight) throw new Error('Ukuran gambar tidak terbaca (0x0).');
+
+                const longSide = Math.max(naturalWidth, naturalHeight);
+                const scale = longSide > maxDimensionPx ? maxDimensionPx / longSide : 1;
+                const width = Math.max(1, Math.round(naturalWidth * scale));
+                const height = Math.max(1, Math.round(naturalHeight * scale));
+
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                // JPEG has no alpha channel - paint white first so transparent
+                // areas (e.g. PNG screenshots) don't turn black.
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, width, height);
+                ctx.drawImage(img, 0, 0, width, height);
+
+                const dataUrl = canvas.toDataURL('image/jpeg', quality);
+                const jpegBytes = Uint8Array.from(atob(dataUrl.split(',')[1]), c => c.charCodeAt(0));
+                URL.revokeObjectURL(url);
+                resolve({ jpegBytes, width, height });
+            } catch (err) {
+                URL.revokeObjectURL(url);
+                reject(err);
+            }
+        };
+        img.onerror = () => {
+            URL.revokeObjectURL(url);
+            reject(new Error('Browser tidak bisa mendekode file ini sebagai gambar.'));
+        };
+        img.src = url;
+    });
+}
+
+/* ---------------------------------------------------------------- */
 /* Shared status / result UI helpers                                 */
 /* ---------------------------------------------------------------- */
 function setPdfProcessingStatus(text) {
@@ -101,6 +150,7 @@ async function realExecutePdfToImage() {
     const format = document.getElementById('pdf-to-image-format')?.value || 'image/jpeg';
     const scale = parseFloat(document.getElementById('pdf-to-image-scale')?.value || '2');
     const quality = parseInt(document.getElementById('pdf-to-image-quality')?.value || '90', 10) / 100;
+    const outputFilename = getPdfOutputFilename('RedPixel_PDF_to_Image');
 
     setPdfProcessingStatus(`Membaca ${file.name}...`);
     const bytes = await file.arrayBuffer();
@@ -151,7 +201,7 @@ async function realExecutePdfToImage() {
         results.push({
             pageNum,
             dataUrl,
-            filename: `${file.name.replace(/\.pdf$/i, '')}_page${String(pageNum).padStart(2, '0')}.${ext}`
+            filename: `${outputFilename}_page${String(pageNum).padStart(2, '0')}.${ext}`
         });
     }
 
@@ -172,7 +222,7 @@ async function realExecutePdfToImage() {
     `).join('');
 
     showPdfResults(`
-        ${pdfResultHeader('Konversi Selesai', pdfStatItem('File', file.name) + pdfStatItem('Total Halaman', totalPages) + pdfStatItem('Format', ext.toUpperCase()) + pdfStatItem('Resolusi', scale + 'x'))}
+        ${pdfResultHeader('Konversi Selesai', pdfStatItem('Total Halaman', totalPages) + pdfStatItem('Format', ext.toUpperCase()) + pdfStatItem('Resolusi', scale + 'x') + pdfStatItem('Output', `${outputFilename}_pageXX.${ext}`))}
         <div class="flex justify-end">
             <button onclick="downloadAllPdfRenderedPagesZip()" class="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-md transition flex items-center gap-2">
                 <i class="fa-solid fa-file-zipper"></i>
@@ -201,7 +251,7 @@ async function downloadAllPdfRenderedPagesZip() {
         zip.file(item.filename, base64, { base64: true });
     }
     const blob = await zip.generateAsync({ type: 'blob' });
-    downloadBlob(blob, 'RedPixel_PDF_to_Image.zip');
+    downloadBlob(blob, `${getPdfOutputFilename('RedPixel_PDF_to_Image')}.zip`);
     showToast('ZIP berhasil diunduh!');
 }
 
@@ -214,6 +264,7 @@ async function realExecuteMergePdf() {
         return;
     }
 
+    const outputFilename = getPdfOutputFilename('RedPixel_Merged');
     setPdfProcessingStatus('Membaca file PDF...');
     const mergedDoc = await PDFLib.PDFDocument.create();
     let totalSourcePages = 0;
@@ -242,13 +293,13 @@ async function realExecuteMergePdf() {
     const blob = new Blob([mergedBytes], { type: 'application/pdf' });
     setPdfProcessingStatus(null);
 
-    downloadBlob(blob, 'RedPixel_Merged.pdf');
+    downloadBlob(blob, `${outputFilename}.pdf`);
     showToast(`${state.pdfFiles.length} PDF berhasil digabungkan!`);
 
     const listHtml = perFileInfo.map(f => `<li class="flex justify-between"><span class="truncate pr-2">${f.name}</span><span class="text-gray-500 shrink-0">${f.pages} hal.</span></li>`).join('');
 
     showPdfResults(`
-        ${pdfResultHeader('Merge PDF Selesai', pdfStatItem('File Digabung', state.pdfFiles.length) + pdfStatItem('Total Halaman', totalSourcePages) + pdfStatItem('Ukuran Output', formatBytes(mergedBytes.byteLength)) + pdfStatItem('Output', 'RedPixel_Merged.pdf'))}
+        ${pdfResultHeader('Merge PDF Selesai', pdfStatItem('File Digabung', state.pdfFiles.length) + pdfStatItem('Total Halaman', totalSourcePages) + pdfStatItem('Ukuran Output', formatBytes(mergedBytes.byteLength)) + pdfStatItem('Output', `${outputFilename}.pdf`))}
         <div class="bg-white dark:bg-zinc-800 rounded-2xl p-4 border border-gray-200 dark:border-zinc-700 shadow-sm">
             <p class="text-xs font-bold text-gray-600 dark:text-zinc-300 mb-2">Urutan penggabungan:</p>
             <ul class="text-xs text-gray-700 dark:text-zinc-300 space-y-1">${listHtml}</ul>
@@ -296,6 +347,7 @@ function parsePageRange(rangeStr, maxPages) {
 async function realExecuteSplitPdf() {
     const file = state.pdfFiles[0];
     const rangeInput = document.getElementById('pdf-split-range')?.value || '';
+    const outputFilename = getPdfOutputFilename('RedPixel_Split');
 
     setPdfProcessingStatus(`Membaca ${file.name}...`);
     let bytes, srcDoc;
@@ -326,15 +378,15 @@ async function realExecuteSplitPdf() {
     const blob = new Blob([newBytes], { type: 'application/pdf' });
     setPdfProcessingStatus(null);
 
-    downloadBlob(blob, 'RedPixel_Split.pdf');
+    downloadBlob(blob, `${outputFilename}.pdf`);
     showToast(`Berhasil mengambil ${pages.length} halaman dari ${maxPages} halaman.`);
 
     showPdfResults(pdfResultHeader(
         'Split PDF Selesai',
         pdfStatItem('File Asal', file.name) +
-        pdfStatItem('Total Halaman Asal', maxPages) +
         pdfStatItem('Halaman Diambil', pages.length) +
-        pdfStatItem('Ukuran Output', formatBytes(newBytes.byteLength))
+        pdfStatItem('Ukuran Output', formatBytes(newBytes.byteLength)) +
+        pdfStatItem('Output', `${outputFilename}.pdf`)
     ));
 }
 
@@ -345,6 +397,7 @@ async function realExecuteSplitPdf() {
 async function realExecuteCompressPdf() {
     const file = state.pdfFiles[0];
     const level = document.getElementById('pdf-compress-level')?.value || 'medium';
+    const outputFilename = getPdfOutputFilename('RedPixel_Compressed');
 
     const settings = {
         low: { scale: 2.0, quality: 0.85 },
@@ -409,11 +462,11 @@ async function realExecuteCompressPdf() {
         showToast(`PDF berhasil dipadatkan: ${formatBytes(originalSize)} \u2192 ${formatBytes(newSize)}`);
     }
 
-    downloadBlob(blob, 'RedPixel_Compressed.pdf');
+    downloadBlob(blob, `${outputFilename}.pdf`);
 
     const reduction = originalSize > 0 ? Math.round((1 - newSize / originalSize) * 100) : 0;
     showPdfResults(`
-        ${pdfResultHeader('Kompresi Selesai', pdfStatItem('Ukuran Asli', formatBytes(originalSize)) + pdfStatItem('Ukuran Baru', formatBytes(newSize)) + pdfStatItem('Pengurangan', reduction + '%') + pdfStatItem('Halaman', totalPages))}
+        ${pdfResultHeader('Kompresi Selesai', pdfStatItem('Ukuran Asli', formatBytes(originalSize)) + pdfStatItem('Ukuran Baru', formatBytes(newSize)) + pdfStatItem('Pengurangan', reduction + '%') + pdfStatItem('Output', `${outputFilename}.pdf`))}
         <p class="text-[11px] text-gray-500 dark:text-zinc-400 px-1">Catatan: setiap halaman dirender ulang sebagai gambar JPEG, sehingga teks pada hasil kompresi tidak lagi bisa diseleksi/dicari. Cocok untuk PDF hasil scan atau berisi gambar besar.</p>
     `);
 }

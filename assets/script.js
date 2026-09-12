@@ -652,6 +652,46 @@ function convertAllImages() {
 /* =================================================================== */
 /* redPDF TOOLS LOGIC */
 /* =================================================================== */
+
+/* Shared "Nama File Output" field used by every redPDF tool, so the user
+   can type their own filename before exporting (image-to-pdf, pdf-to-image,
+   merge-pdf, split-pdf, compress-pdf all read from the same #pdf-output-filename
+   input via getPdfOutputFilename()). */
+function pdfFilenameFieldHTML(defaultValue) {
+    return `
+        <div>
+            <label class="text-xs font-semibold text-gray-600 dark:text-zinc-300 block mb-1">Nama File Output</label>
+            <input type="text" id="pdf-output-filename" value="${defaultValue}" placeholder="Isi nama file..." class="w-full px-3 py-2 bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl text-xs font-semibold focus:outline-none focus:border-red-600">
+        </div>
+    `;
+}
+
+// Strips characters that are invalid in filenames on common OSes and trims
+// stray spaces/dots, so a name typed by the user never produces a broken download.
+function sanitizeFilenameBase(name) {
+    return (name || '').replace(/[\\/:*?"<>|]/g, '').replace(/\.+$/, '').trim();
+}
+
+function getPdfOutputFilename(defaultBase) {
+    const input = document.getElementById('pdf-output-filename');
+    const cleaned = input ? sanitizeFilenameBase(input.value) : '';
+    return cleaned || defaultBase;
+}
+
+// image-to-pdf's page size/orientation selects existed in the UI but were
+// never actually read - addPage() always hardcoded A4. This reads them so
+// "Letter" and "Landscape" actually take effect.
+function getPdfPageDimensions() {
+    const sizeKey = document.getElementById('pdf-page-size')?.value || 'A4';
+    const orientation = document.getElementById('pdf-orientation')?.value || 'portrait';
+    const sizes = {
+        A4: { w: 595.28, h: 841.89 },
+        LETTER: { w: 612, h: 792 }
+    };
+    const base = sizes[sizeKey] || sizes.A4;
+    return orientation === 'landscape' ? { w: base.h, h: base.w } : { w: base.w, h: base.h };
+}
+
 function selectPdfTool(toolKey) {
     state.activePdfTool = toolKey;
     switchMainView('pdf');
@@ -768,6 +808,7 @@ function renderPdfConfigPanel() {
 
     if (state.activePdfTool === 'image-to-pdf') {
         panel.innerHTML = `
+            ${pdfFilenameFieldHTML('RedPixel_Hasil')}
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="text-xs font-semibold text-gray-600 dark:text-zinc-300 block mb-1">Ukuran Halaman PDF</label>
@@ -784,9 +825,19 @@ function renderPdfConfigPanel() {
                     </select>
                 </div>
             </div>
+            <div>
+                <label class="text-xs font-semibold text-gray-600 dark:text-zinc-300 block mb-1">Kualitas & Ukuran Gambar</label>
+                <select id="pdf-image-quality-level" class="w-full px-3 py-2 bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl text-xs font-medium">
+                    <option value="low">Ringan (ukuran PDF paling kecil)</option>
+                    <option value="medium" selected>Sedang (seimbang) &mdash; direkomendasikan</option>
+                    <option value="high">Tinggi (kualitas terbaik, ukuran lebih besar)</option>
+                </select>
+                <p class="text-[11px] text-gray-500 mt-1">Setiap gambar otomatis dipadatkan jadi JPEG dan disesuaikan resolusinya dengan ukuran halaman, supaya file PDF tidak membengkak.</p>
+            </div>
         `;
     } else if (state.activePdfTool === 'split-pdf') {
         panel.innerHTML = `
+            ${pdfFilenameFieldHTML('RedPixel_Split')}
             <div>
                 <label class="text-xs font-semibold text-gray-600 dark:text-zinc-300 block mb-1">Rentang Halaman (Misal: 1-3, 5)</label>
                 <input type="text" id="pdf-split-range" value="1" placeholder="Contoh: 1-2, 5" class="w-full px-3 py-2 bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl text-xs font-medium">
@@ -795,6 +846,7 @@ function renderPdfConfigPanel() {
         `;
     } else if (state.activePdfTool === 'pdf-to-image') {
         panel.innerHTML = `
+            ${pdfFilenameFieldHTML('RedPixel_PDF_to_Image')}
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="text-xs font-semibold text-gray-600 dark:text-zinc-300 block mb-1">Format Gambar</label>
@@ -823,6 +875,7 @@ function renderPdfConfigPanel() {
         `;
     } else if (state.activePdfTool === 'compress-pdf') {
         panel.innerHTML = `
+            ${pdfFilenameFieldHTML('RedPixel_Compressed')}
             <div>
                 <label class="text-xs font-semibold text-gray-600 dark:text-zinc-300 block mb-1">Tingkat Kompresi</label>
                 <select id="pdf-compress-level" class="w-full px-3 py-2 bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl text-xs font-medium">
@@ -835,8 +888,13 @@ function renderPdfConfigPanel() {
                 </p>
             </div>
         `;
+    } else if (state.activePdfTool === 'merge-pdf') {
+        panel.innerHTML = `
+            ${pdfFilenameFieldHTML('RedPixel_Merged')}
+            <p class="text-[11px] text-gray-500">File akan digabungkan sesuai urutan pada daftar di bawah. Gunakan "Tambah File" untuk menambah lebih banyak PDF.</p>
+        `;
     } else {
-        panel.innerHTML = `<p class="text-xs text-gray-500 font-medium">Pengaturan standar aktif untuk fitur ini.</p>`;
+        panel.innerHTML = `${pdfFilenameFieldHTML('RedPixel_Hasil')}`;
     }
 }
 
@@ -922,7 +980,23 @@ async function executePdfTool() {
 
     try {
         if (state.activePdfTool === 'image-to-pdf') {
-            const A4_W = 595.28, A4_H = 841.89; // A4 in PDF points
+            const { w: PAGE_W, h: PAGE_H } = getPdfPageDimensions(); // PDF points
+            const outputFilename = getPdfOutputFilename('RedPixel_Hasil');
+
+            // Quality level controls both the JPEG compression and the max pixel
+            // resolution each image is downscaled to before being embedded - this
+            // is what keeps the output PDF from becoming huge when photos straight
+            // from a phone camera (often 3000-4000px+) are used.
+            const qualityLevel = document.getElementById('pdf-image-quality-level')?.value || 'medium';
+            const qualitySettings = {
+                low: { dpi: 96, jpegQuality: 0.6 },
+                medium: { dpi: 150, jpegQuality: 0.75 },
+                high: { dpi: 220, jpegQuality: 0.88 }
+            }[qualityLevel] || { dpi: 150, jpegQuality: 0.75 };
+            // Cap resolution based on the page's longer side (in inches) at the chosen DPI -
+            // no point embedding pixels far beyond what the printed/viewed page can show.
+            const maxDimensionPx = Math.round((Math.max(PAGE_W, PAGE_H) / 72) * qualitySettings.dpi);
+
             const pdfDoc = await PDFLib.PDFDocument.create();
             let addedCount = 0;
             const skipped = [];
@@ -933,29 +1007,29 @@ async function executePdfTool() {
                 try {
                     // pdf-lib can only embed PNG/JPG directly, but we want to accept
                     // ANY format the browser can decode (WEBP, GIF, BMP, AVIF, SVG, ...).
-                    // So we draw the image onto a canvas and re-encode it as PNG first -
-                    // this normalizes every supported format into something pdf-lib
-                    // understands, using the browser's own real image decoder (no fake
-                    // conversion, no assumptions about the original format).
-                    imgData = await loadImageAsPngBytes(file);
+                    // So we draw the image onto a canvas, downscale it to a sensible
+                    // print/view resolution, and re-encode as compressed JPEG - this
+                    // normalizes every supported format AND keeps file size in check,
+                    // using the browser's own real image decoder (no fake conversion).
+                    imgData = await loadImageAsJpegBytesForPdf(file, maxDimensionPx, qualitySettings.jpegQuality);
                 } catch (err) {
                     console.error(`Gagal memuat ${file.name}:`, err);
                     skipped.push(file.name);
                     continue;
                 }
 
-                const embeddedImg = await pdfDoc.embedPng(imgData.pngBytes);
+                const embeddedImg = await pdfDoc.embedJpg(imgData.jpegBytes);
 
-                // Fit the image inside the A4 page keeping its aspect ratio (centered),
-                // instead of stretching it to fill 595x842 which would distort any
-                // image that isn't already in an A4 ratio.
-                const scale = Math.min(A4_W / embeddedImg.width, A4_H / embeddedImg.height);
+                // Fit the image inside the page keeping its aspect ratio (centered),
+                // instead of stretching it to fill the page which would distort any
+                // image that isn't already in the same ratio as the page.
+                const scale = Math.min(PAGE_W / embeddedImg.width, PAGE_H / embeddedImg.height);
                 const w = embeddedImg.width * scale;
                 const h = embeddedImg.height * scale;
-                const x = (A4_W - w) / 2;
-                const y = (A4_H - h) / 2;
+                const x = (PAGE_W - w) / 2;
+                const y = (PAGE_H - h) / 2;
 
-                const page = pdfDoc.addPage([A4_W, A4_H]);
+                const page = pdfDoc.addPage([PAGE_W, PAGE_H]);
                 page.drawImage(embeddedImg, { x, y, width: w, height: h });
                 addedCount++;
             }
@@ -969,7 +1043,7 @@ async function executePdfTool() {
             setPdfProcessingStatus('Menulis file PDF...');
             const pdfBytes = await pdfDoc.save();
             setPdfProcessingStatus(null);
-            downloadBlob(new Blob([pdfBytes], { type: 'application/pdf' }), 'RedPixel_Hasil.pdf');
+            downloadBlob(new Blob([pdfBytes], { type: 'application/pdf' }), `${outputFilename}.pdf`);
 
             if (skipped.length) {
                 showToast(`PDF dibuat dari ${addedCount} gambar. ${skipped.length} file dilewati (gagal dibaca): ${skipped.join(', ')}`);
@@ -982,7 +1056,7 @@ async function executePdfTool() {
                 pdfStatItem('Jumlah Halaman', addedCount) +
                 pdfStatItem('File Dilewati', skipped.length) +
                 pdfStatItem('Ukuran File', formatBytes(pdfBytes.byteLength)) +
-                pdfStatItem('Output', 'RedPixel_Hasil.pdf')
+                pdfStatItem('Output', `${outputFilename}.pdf`)
             ));
         } else if (state.activePdfTool === 'pdf-to-image') {
             await realExecutePdfToImage();

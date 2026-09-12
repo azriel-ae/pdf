@@ -436,9 +436,9 @@
                 </div>
 
                 <div id="editor-workspace" class="relative bg-white dark:bg-zinc-800 rounded-2xl border border-gray-200 dark:border-zinc-700 shadow-sm p-3 sm:p-6 min-h-[400px] flex flex-col justify-center items-center overflow-hidden">
-                    <div id="drag-drop-zone" onclick="triggerFileInput()" class="w-full max-w-xl p-12 border-2 border-dashed border-red-300 dark:border-red-900/60 rounded-2xl bg-red-50/50 dark:bg-red-950/10 text-center cursor-pointer flex flex-col items-center justify-center space-y-3 group transition hover:border-red-500">
-                        <div class="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/40 text-red-600 flex items-center justify-center group-hover:scale-110 transition shadow-inner">
-                            <i class="fa-solid fa-cloud-arrow-up text-2xl"></i>
+                    <div id="drag-drop-zone" onclick="triggerFileInput()" class="w-full max-w-xl p-6 sm:p-12 border-2 border-dashed border-red-300 dark:border-red-900/60 rounded-2xl bg-red-50/50 dark:bg-red-950/10 text-center cursor-pointer flex flex-col items-center justify-center space-y-3 group transition hover:border-red-500">
+                        <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-red-100 dark:bg-red-900/40 text-red-600 flex items-center justify-center group-hover:scale-110 transition shadow-inner">
+                            <i class="fa-solid fa-cloud-arrow-up text-lg sm:text-2xl"></i>
                         </div>
                         <h3 class="text-base font-bold">Upload Foto Anda</h3>
                         <p class="text-xs text-gray-500">Klik untuk memilih gambar atau seret & lepas di sini</p>
@@ -469,9 +469,9 @@
 
         <!-- VIEW 2: IMAGE CONVERTER -->
         <div id="main-view-converter" class="hidden space-y-6">
-            <div class="bg-white dark:bg-zinc-800 rounded-2xl p-6 border border-gray-200 dark:border-zinc-700 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="bg-white dark:bg-zinc-800 rounded-2xl p-4 sm:p-6 border border-gray-200 dark:border-zinc-700 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
                 <div class="flex items-center space-x-4">
-                    <div class="p-3.5 bg-red-600 text-white rounded-2xl shadow-lg shadow-red-600/20 text-2xl flex items-center justify-center shrink-0">
+                    <div class="p-2.5 sm:p-3.5 bg-red-600 text-white rounded-2xl shadow-lg shadow-red-600/20 text-lg sm:text-2xl flex items-center justify-center shrink-0">
                         <i class="fa-solid fa-file-arrow-down"></i>
                     </div>
                     <div>
@@ -492,10 +492,10 @@
             </div>
 
             <!-- Upload Area -->
-            <div id="converter-upload-card" class="bg-white dark:bg-zinc-800 rounded-2xl p-6 sm:p-12 border border-gray-200 dark:border-zinc-700 shadow-sm text-center">
-                <div onclick="triggerConverterFileInput()" ondragover="handleConverterDragOver(event)" ondragleave="handleConverterDragLeave(event)" ondrop="handleConverterDrop(event)" class="w-full max-w-2xl mx-auto p-8 sm:p-12 border-2 border-dashed border-red-300 dark:border-red-900/60 rounded-2xl bg-red-50/40 dark:bg-red-950/10 hover:bg-red-50 cursor-pointer transition flex flex-col items-center justify-center space-y-4 group">
-                    <div class="w-20 h-20 rounded-full bg-red-100 dark:bg-red-900/40 text-red-600 flex items-center justify-center group-hover:scale-110 transition shadow-inner">
-                        <i class="fa-solid fa-cloud-arrow-up text-3xl"></i>
+            <div id="converter-upload-card" class="bg-white dark:bg-zinc-800 rounded-2xl p-4 sm:p-12 border border-gray-200 dark:border-zinc-700 shadow-sm text-center">
+                <div onclick="triggerConverterFileInput()" ondragover="handleConverterDragOver(event)" ondragleave="handleConverterDragLeave(event)" ondrop="handleConverterDrop(event)" class="w-full max-w-2xl mx-auto p-6 sm:p-12 border-2 border-dashed border-red-300 dark:border-red-900/60 rounded-2xl bg-red-50/40 dark:bg-red-950/10 hover:bg-red-50 cursor-pointer transition flex flex-col items-center justify-center space-y-4 group">
+                    <div class="w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-red-100 dark:bg-red-900/40 text-red-600 flex items-center justify-center group-hover:scale-110 transition shadow-inner">
+                        <i class="fa-solid fa-cloud-arrow-up text-xl sm:text-3xl"></i>
                     </div>
                     <div class="space-y-1">
                         <h3 class="text-base sm:text-lg font-bold text-gray-800 dark:text-zinc-100">Upload Gambar Anda</h3>
@@ -568,9 +568,9 @@
 
         <!-- VIEW 3: redPDF - PDF TOOLS WORKSPACE -->
         <div id="main-view-pdf" class="hidden space-y-6">
-            <div class="bg-white dark:bg-zinc-800 rounded-2xl p-6 border border-gray-200 dark:border-zinc-700 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="bg-white dark:bg-zinc-800 rounded-2xl p-4 sm:p-6 border border-gray-200 dark:border-zinc-700 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
                 <div class="flex items-center space-x-4">
-                    <div class="p-3.5 bg-red-600 text-white rounded-2xl shadow-lg shadow-red-600/20 text-2xl flex items-center justify-center shrink-0">
+                    <div class="p-2.5 sm:p-3.5 bg-red-600 text-white rounded-2xl shadow-lg shadow-red-600/20 text-lg sm:text-2xl flex items-center justify-center shrink-0">
                         <i class="fa-solid fa-file-pdf"></i>
                     </div>
                     <div>
@@ -589,11 +589,11 @@
             </div>
 
             <!-- PDF Upload Card -->
-            <div id="pdf-upload-card" class="bg-white dark:bg-zinc-800 rounded-2xl p-8 sm:p-12 border border-gray-200 dark:border-zinc-700 shadow-sm text-center">
+            <div id="pdf-upload-card" class="bg-white dark:bg-zinc-800 rounded-2xl p-4 sm:p-12 border border-gray-200 dark:border-zinc-700 shadow-sm text-center">
                 <input type="file" id="pdf-file-input" accept="image/*" multiple class="hidden" onchange="handlePdfFilesSelected(event)">
-                <div onclick="triggerPdfFileInput()" class="w-full max-w-2xl mx-auto p-10 border-2 border-dashed border-red-300 dark:border-red-900/60 rounded-2xl bg-red-50/40 text-center cursor-pointer transition flex flex-col items-center justify-center space-y-4 group hover:border-red-500">
-                    <div class="w-20 h-20 rounded-full bg-red-100 text-red-600 flex items-center justify-center group-hover:scale-110 transition shadow-inner">
-                        <i class="fa-solid fa-cloud-arrow-up text-3xl"></i>
+                <div onclick="triggerPdfFileInput()" class="w-full max-w-2xl mx-auto p-6 sm:p-10 border-2 border-dashed border-red-300 dark:border-red-900/60 rounded-2xl bg-red-50/40 text-center cursor-pointer transition flex flex-col items-center justify-center space-y-4 group hover:border-red-500">
+                    <div class="w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-red-100 text-red-600 flex items-center justify-center group-hover:scale-110 transition shadow-inner">
+                        <i class="fa-solid fa-cloud-arrow-up text-xl sm:text-3xl"></i>
                     </div>
                     <div>
                         <h3 class="text-lg font-bold text-gray-800 dark:text-zinc-100">Upload File untuk redPDF</h3>
@@ -644,9 +644,9 @@
 
         <!-- VIEW 4: FILE TO EXCEL -->
         <div id="main-view-excel" class="hidden space-y-6">
-            <div class="bg-white dark:bg-zinc-800 rounded-2xl p-6 border border-gray-200 dark:border-zinc-700 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="bg-white dark:bg-zinc-800 rounded-2xl p-4 sm:p-6 border border-gray-200 dark:border-zinc-700 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
                 <div class="flex items-center space-x-4">
-                    <div class="p-3.5 bg-red-600 text-white rounded-2xl shadow-lg shadow-red-600/20 text-2xl flex items-center justify-center shrink-0">
+                    <div class="p-2.5 sm:p-3.5 bg-red-600 text-white rounded-2xl shadow-lg shadow-red-600/20 text-lg sm:text-2xl flex items-center justify-center shrink-0">
                         <i class="fa-solid fa-file-excel"></i>
                     </div>
                     <div>
@@ -665,11 +665,11 @@
             </div>
 
             <!-- Upload Card -->
-            <div id="excel-upload-card" class="bg-white dark:bg-zinc-800 rounded-2xl p-6 sm:p-12 border border-gray-200 dark:border-zinc-700 shadow-sm text-center">
+            <div id="excel-upload-card" class="bg-white dark:bg-zinc-800 rounded-2xl p-4 sm:p-12 border border-gray-200 dark:border-zinc-700 shadow-sm text-center">
                 <input type="file" id="excel-file-input" accept=".csv,.json,.xls,.xlsx,.txt,.pdf" class="hidden" onchange="handleExcelFileSelected(event)">
-                <div onclick="triggerExcelFileInput()" ondragover="handleExcelDragOver(event)" ondragleave="handleExcelDragLeave(event)" ondrop="handleExcelDrop(event)" id="excel-drop-zone" class="w-full max-w-2xl mx-auto p-8 sm:p-12 border-2 border-dashed border-red-300 dark:border-red-900/60 rounded-2xl bg-red-50/40 dark:bg-red-950/10 hover:bg-red-50 cursor-pointer transition flex flex-col items-center justify-center space-y-4 group">
-                    <div class="w-20 h-20 rounded-full bg-red-100 dark:bg-red-900/40 text-red-600 flex items-center justify-center group-hover:scale-110 transition shadow-inner">
-                        <i class="fa-solid fa-cloud-arrow-up text-3xl"></i>
+                <div onclick="triggerExcelFileInput()" ondragover="handleExcelDragOver(event)" ondragleave="handleExcelDragLeave(event)" ondrop="handleExcelDrop(event)" id="excel-drop-zone" class="w-full max-w-2xl mx-auto p-6 sm:p-12 border-2 border-dashed border-red-300 dark:border-red-900/60 rounded-2xl bg-red-50/40 dark:bg-red-950/10 hover:bg-red-50 cursor-pointer transition flex flex-col items-center justify-center space-y-4 group">
+                    <div class="w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-red-100 dark:bg-red-900/40 text-red-600 flex items-center justify-center group-hover:scale-110 transition shadow-inner">
+                        <i class="fa-solid fa-cloud-arrow-up text-xl sm:text-3xl"></i>
                     </div>
                     <div class="space-y-1">
                         <h3 class="text-base sm:text-lg font-bold text-gray-800 dark:text-zinc-100">Drop file Anda di sini</h3>
