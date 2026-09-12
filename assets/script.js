@@ -27,7 +27,6 @@ let state = {
 
 window.onload = function() {
     initFabricCanvas();
-    initThemeOnLoad();
 };
 
 /* =================================================================== */
@@ -93,27 +92,7 @@ function toggleMobilePdfAccordion() {
     chevron.style.transform = content.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
 }
 
-function toggleTheme() {
-    const html = document.documentElement;
-    const isDark = html.classList.toggle('dark');
-    const text = document.getElementById('theme-mode-text');
-    const icon = document.getElementById('theme-icon');
-    if (isDark) {
-        text.innerText = 'Black Mode';
-        icon.className = 'fa-solid fa-sun text-base';
-    } else {
-        text.innerText = 'White Mode';
-        icon.className = 'fa-solid fa-moon text-base';
-    }
-}
-
-function initThemeOnLoad() {
-    if (document.documentElement.classList.contains('dark')) {
-        document.getElementById('theme-mode-text').innerText = 'Black Mode';
-    } else {
-        document.getElementById('theme-mode-text').innerText = 'White Mode';
-    }
-}
+/* Theme is permanently dark (black + red) - no light-mode toggle. */
 
 /* =================================================================== */
 /* PHOTO STUDIO & CROPPER LOGIC */
