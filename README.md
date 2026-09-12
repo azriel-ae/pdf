@@ -44,11 +44,6 @@ RedPixel-Studio/
 - **Split PDF** – ambil halaman tertentu dari PDF
 - **Compress PDF** – perkecil ukuran file PDF
 
-### 🌗 Lainnya
-- Mode gelap/terang (dark/light mode)
-- Navigasi dropdown untuk Image Tools & PDF Tools
-- Notifikasi toast untuk setiap aksi penting
-
 ## 🛠️ Teknologi
 
 Semua library dimuat lewat CDN (tidak perlu instalasi/build tools):
