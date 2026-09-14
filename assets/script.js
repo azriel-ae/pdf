@@ -178,7 +178,10 @@ function applyCrop() {
     });
     if (!croppedCanvas) return;
 
-    state.currentImageSrc = croppedCanvas.toDataURL('image/jpeg', 0.95);
+    // Keep the working copy lossless (PNG) between edit steps — encoding to
+    // JPEG here would compound quality loss every time the photo is cropped
+    // again later. The final export format is chosen only at download time.
+    state.currentImageSrc = croppedCanvas.toDataURL('image/png');
     resetFilterSliders();
     loadCropper(state.currentImageSrc);
 
@@ -274,7 +277,8 @@ function bakeFilterToImageData() {
     ctx.filter = `brightness(${100 + parseInt(b)}%) contrast(${100 + parseInt(c)}%) saturate(${100 + parseInt(s)}%)`;
     ctx.drawImage(img, 0, 0);
 
-    state.currentImageSrc = canvas.toDataURL('image/jpeg', 0.95);
+    // Lossless intermediate format — see the note in applyCrop().
+    state.currentImageSrc = canvas.toDataURL('image/png');
 }
 
 function applyFilterToImage() {
@@ -467,11 +471,39 @@ function downloadEditedPhoto() {
     const filename = (document.getElementById('photo-filename-input').value || 'Foto_Tools').trim();
     const format = document.getElementById('photo-format-select').value || 'jpg';
 
-    const link = document.createElement('a');
-    link.download = `${filename}.${format}`;
-    link.href = state.currentImageSrc;
-    link.click();
-    showToast('Download foto berhasil dimulai!');
+    // Re-encode into the actually selected format at high quality, drawn at
+    // the image's full native resolution (never scaled down), instead of
+    // just relabeling the current file extension.
+    const img = new Image();
+    img.onload = function() {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth || img.width;
+        canvas.height = img.naturalHeight || img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+
+        if (format === 'jpg' || format === 'jpeg') {
+            // JPG has no transparency — fill white first so edges don't turn black.
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        let mimeType = 'image/jpeg';
+        let quality = 0.95;
+        if (format === 'png') { mimeType = 'image/png'; quality = 1; }
+        if (format === 'webp') { mimeType = 'image/webp'; quality = 0.95; }
+
+        const resultUrl = canvas.toDataURL(mimeType, quality);
+
+        const link = document.createElement('a');
+        link.download = `${filename}.${format}`;
+        link.href = resultUrl;
+        link.click();
+        showToast('Download foto berhasil dimulai!');
+    };
+    img.src = state.currentImageSrc;
 }
 
 function resetToHomeScreen() {

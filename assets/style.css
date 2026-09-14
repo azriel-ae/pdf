@@ -92,6 +92,13 @@ header.shadow-sm {
     transform: translateY(-1px);
 }
 
+/* Best available upscaling quality when the edited photo is stretched to
+   fill the full A4 sheet (or shown large in the editor) */
+.print-full-page-img, #cropper-image, #fabric-canvas {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: high-quality;
+}
+
 ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
