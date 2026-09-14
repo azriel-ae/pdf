@@ -10,7 +10,7 @@
 /* GLOBAL APPLICATION STATE */
 /* =================================================================== */
 let state = {
-    mainView: 'photo',
+    mainView: 'home',
     activePdfTool: 'image-to-pdf',
     currentImageSrc: null,
     originalImageSrc: null,
@@ -27,6 +27,7 @@ let state = {
 
 window.onload = function() {
     initFabricCanvas();
+    syncNavActiveState(state.mainView);
 };
 
 /* =================================================================== */
@@ -34,12 +35,15 @@ window.onload = function() {
 /* =================================================================== */
 function switchMainView(view) {
     state.mainView = view;
+    document.getElementById('main-view-home').classList.add('hidden');
     document.getElementById('main-view-photo').classList.add('hidden');
     document.getElementById('main-view-converter').classList.add('hidden');
     document.getElementById('main-view-pdf').classList.add('hidden');
     document.getElementById('main-view-excel').classList.add('hidden');
 
-    if (view === 'photo') {
+    if (view === 'home') {
+        document.getElementById('main-view-home').classList.remove('hidden');
+    } else if (view === 'photo') {
         document.getElementById('main-view-photo').classList.remove('hidden');
     } else if (view === 'converter') {
         document.getElementById('main-view-converter').classList.remove('hidden');
@@ -47,6 +51,26 @@ function switchMainView(view) {
         document.getElementById('main-view-pdf').classList.remove('hidden');
     } else if (view === 'excel') {
         document.getElementById('main-view-excel').classList.remove('hidden');
+    }
+
+    syncNavActiveState(view);
+    window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+}
+
+/* Purely visual: highlights the header nav item matching the current view.
+   Safe no-op if a given nav button doesn't exist (e.g. on narrow layouts). */
+function syncNavActiveState(view) {
+    const navIds = { home: 'nav-item-home', photo: 'nav-item-photo' };
+    Object.values(navIds).forEach(id => {
+        const btn = document.getElementById(id);
+        if (!btn) return;
+        btn.classList.remove('text-red-600', 'bg-red-50', 'dark:bg-red-950/40', 'dark:text-red-400');
+        btn.classList.add('text-gray-600', 'dark:text-zinc-300');
+    });
+    const activeBtn = document.getElementById(navIds[view]);
+    if (activeBtn) {
+        activeBtn.classList.remove('text-gray-600', 'dark:text-zinc-300');
+        activeBtn.classList.add('text-red-600', 'bg-red-50', 'dark:bg-red-950/40', 'dark:text-red-400');
     }
 }
 
