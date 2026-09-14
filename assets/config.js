@@ -1,5 +1,5 @@
 /* =====================================================================
-   RedPixel Studio & redPDF Tools - App Configuration
+   Tools & redPDF Tools - App Configuration
    Tailwind theme config + PDF.js worker setup.
    Must load AFTER the Tailwind CDN script and pdf.js library script.
    ===================================================================== */

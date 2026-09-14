@@ -1,5 +1,5 @@
 /* =====================================================================
-   RedPixel - Real redPDF Tools implementations
+   Tools - Real redPDF Tools implementations
    -----------------------------------------------------------------------
    Previously, executePdfTool() in script.js only actually implemented
    "Image to PDF". Every other tool (PDF to Image, Merge PDF, Split PDF,
@@ -150,7 +150,7 @@ async function realExecutePdfToImage() {
     const format = document.getElementById('pdf-to-image-format')?.value || 'image/jpeg';
     const scale = parseFloat(document.getElementById('pdf-to-image-scale')?.value || '2');
     const quality = parseInt(document.getElementById('pdf-to-image-quality')?.value || '90', 10) / 100;
-    const outputFilename = getPdfOutputFilename('RedPixel_PDF_to_Image');
+    const outputFilename = getPdfOutputFilename('Tools_PDF_to_Image');
 
     setPdfProcessingStatus(`Membaca ${file.name}...`);
     const bytes = await file.arrayBuffer();
@@ -251,7 +251,7 @@ async function downloadAllPdfRenderedPagesZip() {
         zip.file(item.filename, base64, { base64: true });
     }
     const blob = await zip.generateAsync({ type: 'blob' });
-    downloadBlob(blob, `${getPdfOutputFilename('RedPixel_PDF_to_Image')}.zip`);
+    downloadBlob(blob, `${getPdfOutputFilename('Tools_PDF_to_Image')}.zip`);
     showToast('ZIP berhasil diunduh!');
 }
 
@@ -264,7 +264,7 @@ async function realExecuteMergePdf() {
         return;
     }
 
-    const outputFilename = getPdfOutputFilename('RedPixel_Merged');
+    const outputFilename = getPdfOutputFilename('Tools_Merged');
     setPdfProcessingStatus('Membaca file PDF...');
     const mergedDoc = await PDFLib.PDFDocument.create();
     let totalSourcePages = 0;
@@ -347,7 +347,7 @@ function parsePageRange(rangeStr, maxPages) {
 async function realExecuteSplitPdf() {
     const file = state.pdfFiles[0];
     const rangeInput = document.getElementById('pdf-split-range')?.value || '';
-    const outputFilename = getPdfOutputFilename('RedPixel_Split');
+    const outputFilename = getPdfOutputFilename('Tools_Split');
 
     setPdfProcessingStatus(`Membaca ${file.name}...`);
     let bytes, srcDoc;
@@ -397,7 +397,7 @@ async function realExecuteSplitPdf() {
 async function realExecuteCompressPdf() {
     const file = state.pdfFiles[0];
     const level = document.getElementById('pdf-compress-level')?.value || 'medium';
-    const outputFilename = getPdfOutputFilename('RedPixel_Compressed');
+    const outputFilename = getPdfOutputFilename('Tools_Compressed');
 
     const settings = {
         low: { scale: 2.0, quality: 0.85 },

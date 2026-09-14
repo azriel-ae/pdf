@@ -1,5 +1,5 @@
 /* =====================================================================
-   RedPixel - File to Excel
+   Tools - File to Excel
    -----------------------------------------------------------------------
    New feature: converts the user's actual uploaded CSV / JSON / XLS /
    XLSX / TXT / PDF file into a genuine .xlsx workbook using SheetJS.
@@ -507,7 +507,7 @@ async function executeFileToExcel() {
 
         if (totalRows === 0) {
             setExcelStatus(null);
-            showExcelFailure('Tidak ada data yang berhasil diekstrak dari file ini. Tidak ada file Excel yang dibuat (RedPixel tidak akan melaporkan sukses palsu).');
+            showExcelFailure('Tidak ada data yang berhasil diekstrak dari file ini. Tidak ada file Excel yang dibuat (Tools tidak akan melaporkan sukses palsu).');
             return;
         }
 

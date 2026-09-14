@@ -1,5 +1,5 @@
 /* =====================================================================
-   RedPixel Studio & redPDF Tools - Main Application Logic
+   Tools & redPDF Tools - Main Application Logic
    Handles Photo Studio (crop/adjust/text/print), Image Converter,
    and redPDF Tools (image<->pdf, merge, split, compress).
    No functional changes were made here — this is the same logic that
@@ -205,7 +205,7 @@ function addTextToCanvas() {
     document.getElementById('cropper-container').classList.add('hidden');
     document.getElementById('fabric-container').classList.remove('hidden');
 
-    const txtVal = document.getElementById('text-input').value || 'RedPixel';
+    const txtVal = document.getElementById('text-input').value || 'Tools';
     const colorVal = document.getElementById('text-color').value || '#ffffff';
 
     fabric.Image.fromURL(state.currentImageSrc, function(oImg) {
@@ -355,7 +355,7 @@ function updatePrintAreaPreview() {
         if (fullPageOptions) fullPageOptions.classList.remove('hidden');
 
         const orientation = document.getElementById('print-orientation')?.value || 'portrait';
-        const scaleMode = document.getElementById('print-scale-mode')?.value || 'fit';
+        const scaleMode = document.getElementById('print-scale-mode')?.value || 'fill';
 
         // A4 physical dimensions swap between portrait/landscape
         const printArea = document.getElementById('print-area');
@@ -464,7 +464,7 @@ function downloadEditedPhoto() {
         return;
     }
 
-    const filename = (document.getElementById('photo-filename-input').value || 'Foto_RedPixel').trim();
+    const filename = (document.getElementById('photo-filename-input').value || 'Foto_Tools').trim();
     const format = document.getElementById('photo-format-select').value || 'jpg';
 
     const link = document.createElement('a');
@@ -811,7 +811,7 @@ function renderPdfConfigPanel() {
 
     if (state.activePdfTool === 'image-to-pdf') {
         panel.innerHTML = `
-            ${pdfFilenameFieldHTML('RedPixel_Hasil')}
+            ${pdfFilenameFieldHTML('Tools_Hasil')}
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="text-xs font-semibold text-gray-600 dark:text-zinc-300 block mb-1">Ukuran Halaman PDF</label>
@@ -840,7 +840,7 @@ function renderPdfConfigPanel() {
         `;
     } else if (state.activePdfTool === 'split-pdf') {
         panel.innerHTML = `
-            ${pdfFilenameFieldHTML('RedPixel_Split')}
+            ${pdfFilenameFieldHTML('Tools_Split')}
             <div>
                 <label class="text-xs font-semibold text-gray-600 dark:text-zinc-300 block mb-1">Rentang Halaman (Misal: 1-3, 5)</label>
                 <input type="text" id="pdf-split-range" value="1" placeholder="Contoh: 1-2, 5" class="w-full px-3 py-2 bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl text-xs font-medium">
@@ -849,7 +849,7 @@ function renderPdfConfigPanel() {
         `;
     } else if (state.activePdfTool === 'pdf-to-image') {
         panel.innerHTML = `
-            ${pdfFilenameFieldHTML('RedPixel_PDF_to_Image')}
+            ${pdfFilenameFieldHTML('Tools_PDF_to_Image')}
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="text-xs font-semibold text-gray-600 dark:text-zinc-300 block mb-1">Format Gambar</label>
@@ -878,7 +878,7 @@ function renderPdfConfigPanel() {
         `;
     } else if (state.activePdfTool === 'compress-pdf') {
         panel.innerHTML = `
-            ${pdfFilenameFieldHTML('RedPixel_Compressed')}
+            ${pdfFilenameFieldHTML('Tools_Compressed')}
             <div>
                 <label class="text-xs font-semibold text-gray-600 dark:text-zinc-300 block mb-1">Tingkat Kompresi</label>
                 <select id="pdf-compress-level" class="w-full px-3 py-2 bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl text-xs font-medium">
@@ -893,11 +893,11 @@ function renderPdfConfigPanel() {
         `;
     } else if (state.activePdfTool === 'merge-pdf') {
         panel.innerHTML = `
-            ${pdfFilenameFieldHTML('RedPixel_Merged')}
+            ${pdfFilenameFieldHTML('Tools_Merged')}
             <p class="text-[11px] text-gray-500">File akan digabungkan sesuai urutan pada daftar di bawah. Gunakan "Tambah File" untuk menambah lebih banyak PDF.</p>
         `;
     } else {
-        panel.innerHTML = `${pdfFilenameFieldHTML('RedPixel_Hasil')}`;
+        panel.innerHTML = `${pdfFilenameFieldHTML('Tools_Hasil')}`;
     }
 }
 
@@ -984,7 +984,7 @@ async function executePdfTool() {
     try {
         if (state.activePdfTool === 'image-to-pdf') {
             const { w: PAGE_W, h: PAGE_H } = getPdfPageDimensions(); // PDF points
-            const outputFilename = getPdfOutputFilename('RedPixel_Hasil');
+            const outputFilename = getPdfOutputFilename('Tools_Hasil');
 
             // Quality level controls both the JPEG compression and the max pixel
             // resolution each image is downscaled to before being embedded - this
